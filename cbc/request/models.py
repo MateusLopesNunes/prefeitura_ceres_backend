@@ -1,0 +1,57 @@
+from django.db import models
+from user.models import Usuario
+
+# Create your models here.
+
+class RequestType(models.Model):
+    icon= models.TextField()
+    banner = models.TextField()
+    desc= models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.desc[0:50]
+
+    class Meta:
+        ordering = ['id']
+
+class Request(models.Model):
+    id_user = models.ForeignKey(Usuario,on_delete=models.CASCADE, null=False)
+    request_type = models.ForeignKey(RequestType, on_delete=models.CASCADE, null=False)
+    importance = models.IntegerField(null=True)
+    img1 = models.TextField()
+    img2= models.TextField()
+    img3= models.TextField()
+    comment= models.TextField()
+    lat= models.CharField(max_length=50)
+    lon= models.CharField(max_length=50)
+    created = models.DateTimeField(auto_now_add=True)
+    completed = models.DateTimeField(null=True)
+
+    def __str__(self):
+        return self.comment[0:50]
+
+    class Meta:
+        ordering = ['-created']
+
+class StatusCode(models.Model):
+    desc = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.desc[0:50]
+
+    class Meta:
+        ordering = ['id']
+
+class Status(models.Model):
+    id_request = models.ForeignKey(Request,on_delete=models.CASCADE, null=False)
+    status_code = models.ForeignKey(StatusCode,on_delete=models.CASCADE, null=False)
+    dateTime = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.desc[0:50]
+
+    class Meta:
+        ordering = ['-dateTime']
+
+
+    

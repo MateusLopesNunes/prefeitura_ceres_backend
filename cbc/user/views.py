@@ -1,0 +1,232 @@
+from django.contrib.auth.models import User
+from django.utils.encoding import force_str
+from .models import Usuario, UserType
+from .serializers import UsuarioSerializer, UsuarioPartialSerializer, UsuarioPassSerializer
+from rest_framework.response import Response
+
+from rest_framework import viewsets, generics
+
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework.views import APIView
+
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from .tokens import account_activation_token
+from django.contrib.auth.models import User
+from django.core.mail import EmailMessage
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from random import choice
+import string
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+#Hateoas
+@api_view(['GET'])
+def getRoutes(request):
+    routes = [
+        {
+            'Endpoint': '/users/',
+            'method': 'GET',
+            'body': None,
+            'description': 'Retorna am array de usuários'
+        },
+        {
+            'Endpoint': '/users/<id>',
+            'method': 'GET',
+            'body': None,
+            'description': 'Retorna um único objeto usuário'
+        },
+        {
+            'Endpoint': '/users/create',
+            'method': 'POST',
+            'body': {'body': ""},
+            'description': 'Cria novos usuários com dados enviados em pós-solicitação'
+        },
+        {
+            'Endpoint': '/users/<id>/update',
+            'method': 'PUT',
+            'body': {'body': ""},
+            'description': 'Cria um usuário existente com os dados enviados'
+        },
+        {
+            'Endpoint': '/users/`<id>/delete',
+            'method': 'DELETE',
+            'body': None,
+            'description': 'Deleta um usuário existente'
+        },
+    ]
+    return Response(routes)
+
+#Utils
+def generatePassword():
+    size = 10
+    values = string.ascii_letters + string.digits
+    new_password = ''
+    for i in range(size):
+        new_password += choice(values)
+    return new_password
+
+def send_email(message, title, user_email):
+    to_email = user_email
+    email = EmailMessage(
+                title, message, to=[to_email]
+    )
+    email.send()
+    
+
+#Andpoints
+def activate(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        # return redirect('home')
+        return HttpResponse('Seu email foi confirmado')
+    else:
+        return HttpResponse('Link invalido!')
+
+class UsuariosViewSet(viewsets.ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+
+class ListaUsuarios(generics.ListAPIView):
+    def get_queryset(self):
+        queryset = Usuario.objects.all()
+        return queryset
+    serializer_class = UsuarioSerializer
+
+class GetUsers(APIView): 
+    permission_classes = [IsAuthenticated] 
+    def get(self, request):
+        users = Usuario.objects.all()
+        serializer = UsuarioSerializer(users, many=True)
+        return Response(serializer.data)
+
+class GetUser(APIView):       
+    permission_classes = [IsAuthenticated]  
+    def get(self, request, pk):
+        user = Usuario.objects.get(pk=pk)
+        serializer = UsuarioSerializer(user, many=False)
+        return Response(serializer.data)
+
+class GetLogin(APIView):       
+    permission_classes = [IsAuthenticated]  
+    def get(self, request, cpf):
+        user = Usuario.objects.get(cpf=cpf)
+        serializer = UsuarioSerializer(user, many=False)
+        return Response(serializer.data)
+
+@api_view(['POST'])
+def createUser(request):
+    userType = UserType.objects.filter(id=1)
+    print(userType)
+
+    if request.method == 'POST':
+        data = request.data
+        user = Usuario(
+            nome = data['nome'],
+            dataNasc = data['dataNasc'],
+            cpf = data['cpf'],
+            endereco = data['endereco'],
+            telefone = data['telefone'],
+            email = data['email'],
+            is_active = False,
+            userType = userType[0]
+        )
+        user.set_password(data['password'])
+        user.save()
+
+        print("--------------------------------")
+
+        current_site = get_current_site(request)
+        mail_subject = 'Ative sua conta.'
+        message = render_to_string('acc_active_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+            'token':account_activation_token.make_token(user),
+        })
+        send_email(message, mail_subject, user.email)
+
+        return HttpResponse('Confirme seu email para confirmar o registro')
+
+        #serializer = UsuarioSerializer(user, many=False)
+       # return Response(serializer.data)
+
+#@method_decorator(api_view(['PUT']), name='dispatch')
+class UpdateUser(generics.UpdateAPIView):       
+    permission_classes = [IsAuthenticated] 
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioPartialSerializer
+    def updateUser(self, request, pk):
+        data = request.data
+
+        user = Usuario.objects.get(pk=pk)
+        serializer = UsuarioPartialSerializer(user, data)
+        if serializer.is_valid():
+            serializer.update()
+
+        return Response(serializer.data)
+
+
+class UpdatePass(generics.UpdateAPIView):       
+    #permission_classes = [IsAuthenticated] 
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioPassSerializer
+    def updatePass(self, request, pk):
+        data = request.data
+
+        user = Usuario.objects.get(pk=pk)
+        user_arg = Usuario(user)
+        #user.__setattr__('id',pk)
+        
+        user_arg.id = pk
+        serializer = UsuarioPassSerializer(self, user_arg, data)
+        if serializer.is_valid():
+            serializer.update()
+
+        return Response(serializer.data)
+
+
+class DeleteUser(generics.DestroyAPIView):
+    queryset = Usuario.objects.all()
+    def deleteUser(request, pk):
+        user = Usuario.objects.get(pk=pk)
+        user.delete()
+        return Response("Usuário Deletado")
+
+
+@api_view(['POST'])
+def resetPassword(request):
+    email = request.data['email']
+    users = User.objects.filter(email=email)
+    
+    if users:
+        user = users[0]
+        new_password = generatePassword()
+
+        user.set_password(new_password)
+        user.save()
+
+        mail_subject = 'Recuperação de senha'
+        message = f'Sua nova senha é: {new_password}'
+        send_email(message, mail_subject, user.email)
+
+        return Response({'message': user.password, 'password': new_password})
+
+    return Response({'error': 'Email não existe'})
+    #User.objects.get(email=email)
