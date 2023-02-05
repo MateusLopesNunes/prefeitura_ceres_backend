@@ -226,7 +226,6 @@ def resetPassword(request):
         message = f'Sua nova senha é: {new_password}'
         send_email(message, mail_subject, user.email)
 
-        return Response({'message': user.password, 'password': new_password})
+        return Response({'message': 'A sua nova senha foi enviada para seu email'})
 
     return Response({'error': 'Email não existe'})
-    #User.objects.get(email=email)
