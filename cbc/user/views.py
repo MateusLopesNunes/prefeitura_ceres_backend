@@ -213,19 +213,20 @@ class DeleteUser(generics.DestroyAPIView):
 @api_view(['POST'])
 def resetPassword(request):
     email = request.data['email']
-    users = User.objects.filter(email=email)
-    
-    if users:
-        user = users[0]
-        new_password = generatePassword()
+    cpf = request.data['cpf']
 
+    userByEmail = User.objects.filter(email=email)
+    userByCpf = User.objects.filter(cpf=cpf)
+    
+    if userByEmail and userByEmail[0].pk == userByCpf[0].pk:
+        user = userByEmail[0]
+        new_password = generatePassword()
         user.set_password(new_password)
         user.save()
 
         mail_subject = 'Recuperação de senha'
         message = f'Sua nova senha é: {new_password}'
         send_email(message, mail_subject, user.email)
-
         return Response({'message': 'A sua nova senha foi enviada para seu email'})
 
-    return Response({'error': 'Email não existe'})
+    return Response({'error': 'Email ou cpf inválidos'})
