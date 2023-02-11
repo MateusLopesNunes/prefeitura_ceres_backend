@@ -85,6 +85,12 @@ DATABASES = {
     }
 }
 
+#possivel solução ao problema de encoding
+DATABASE_OPTIONS = {
+    'use_unicode': True,
+    'charset': 'utf8'
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
