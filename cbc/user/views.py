@@ -23,6 +23,7 @@ from django.core.mail import EmailMessage
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 from random import choice
 import string
 
@@ -227,6 +228,6 @@ def resetPassword(request):
         mail_subject = 'Recuperação de senha'
         message = f'Sua nova senha é: {new_password}'
         send_email(message, mail_subject, user.email)
-        return Response({'message': 'A sua nova senha foi enviada para seu email'})
+        return Response({'message': 'A sua nova senha foi enviada para seu email'}, status=status.HTTP_200_OK)
 
-    return Response({'error': 'Email ou cpf inválidos'})
+    return Response({'error': 'Email ou cpf inválidos'}, status=status.HTTP_400_BAD_REQUEST)
