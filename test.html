@@ -8,5 +8,24 @@
 </head>
 <body>
 	<h1 style="font-size: 2rem; font-family: Arial, Helvetica, sans-serif; font-weight: normal;">Seu email foi confirmado com sucesso</h1>
+	<div class="episodes"></div>
+
+	<script>
+		let url = 'http://localhost:8000/request/reqs/'
+		let episodes = document.querySelector('.episodes')
+
+		async function getEpisodes() {
+
+			const response = await fetch(url)
+
+			const data = await response.json()
+
+			data.results.forEach(element => {
+				console.log(element)
+			});
+		}
+
+		getEpisodes()
+	</script>
 </body>
 </html>
