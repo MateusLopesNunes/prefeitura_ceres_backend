@@ -5,6 +5,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from user.views import UsuariosViewSet, createUser
 from rest_framework import routers
 from django.views.static import serve
+from user import views
+
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,7 +23,7 @@ urlpatterns = [
     path('flutter_web_app/', lambda r: flutter_redirect(r, 'index.html')),
     path('flutter_web_app/<path:resource>', flutter_redirect),
     path('admin/', admin.site.urls),
-    path('token/', TokenObtainPairView.as_view()),
+    path('token/', views.generate_jwt),
     path('token/refresh/', TokenRefreshView.as_view()),
     path('request/', include('request.urls')),
     path('user/', include('user.urls')),

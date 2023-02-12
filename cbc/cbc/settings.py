@@ -86,10 +86,10 @@ DATABASES = {
 }
 
 #possivel solução ao problema de encoding
-DATABASE_OPTIONS = {
-    'use_unicode': True,
-    'charset': 'utf8'
-}
+#DATABASE_OPTIONS = {
+#    'use_unicode': True,
+#    'charset': 'utf8'
+#}
 
 
 # Password validation

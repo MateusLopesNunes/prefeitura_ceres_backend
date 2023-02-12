@@ -1,3 +1,4 @@
+from xml.dom import ValidationErr
 from django.contrib.auth.models import User
 from django.utils.encoding import force_str
 from .models import Usuario, UserType
@@ -231,3 +232,34 @@ def resetPassword(request):
         return Response({'message': 'A sua nova senha foi enviada para seu email'}, status=status.HTTP_200_OK)
 
     return Response({'error': 'Email ou cpf inválidos'}, status=status.HTTP_400_BAD_REQUEST)
+
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import  Response
+from rest_framework.views import APIView
+
+def get_tokens_for_user(user):
+    from rest_framework_simplejwt.tokens import RefreshToken
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+@api_view(['POST'])
+def generate_jwt(request):
+    cpf = request.data['cpf']
+    password = request.data['password']
+    user = authenticate(request, cpf=cpf, password=password)
+    print(user)
+    if user is not None:
+        login(request, user)
+        auth_data = get_tokens_for_user(request.user)
+        return Response({'user_id': user.pk, **auth_data}, status=status.HTTP_200_OK)
+    return Response({'msg': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
