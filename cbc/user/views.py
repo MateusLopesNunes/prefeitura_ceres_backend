@@ -29,6 +29,7 @@ from random import choice
 import string
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, login
 User = get_user_model()
 
 #Hateoas
@@ -233,14 +234,6 @@ def resetPassword(request):
 
     return Response({'error': 'Email ou cpf inválidos'}, status=status.HTTP_400_BAD_REQUEST)
 
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import  Response
-from rest_framework.views import APIView
 
 def get_tokens_for_user(user):
     from rest_framework_simplejwt.tokens import RefreshToken
@@ -250,6 +243,7 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
+    
 
 @api_view(['POST'])
 def generate_jwt(request):
@@ -262,4 +256,3 @@ def generate_jwt(request):
         auth_data = get_tokens_for_user(request.user)
         return Response({'user_id': user.pk, **auth_data}, status=status.HTTP_200_OK)
     return Response({'msg': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-

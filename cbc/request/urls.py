@@ -11,6 +11,7 @@ urlpatterns = [
   path('status/code', views.GetStatusList.as_view()),
   path('create/status/', views.CreateStatus.as_view()),
   path('<str:pk>/update/', views.UpdateReq.as_view()),
+  path('<str:pk>/cancel/', views.cancel_req),
   path('<str:pk>/delete/', views.DeleteReq.as_view()),
   path('<str:pk>/', views.GetRequest.as_view()),
   path('<str:pk>/status/', views.GetRequestStatus.as_view()),
