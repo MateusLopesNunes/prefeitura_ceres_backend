@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import RequestSerializer, RequestTypeSerializer, StatusSerializer,StatusCodeSerializer
 from .models import Request, RequestType, Status, StatusCode
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status as status_code
 from rest_framework.decorators import api_view, permission_classes
 
 @api_view(['GET'])
@@ -47,7 +48,7 @@ class GetRequests(generics.ListAPIView):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['is_deleted']
+    filterset_fields = ['is_canceled']
     def getRequests(request):
         reqs = Request.objects.all()
         serializer = RequestSerializer(reqs, many=True)
@@ -58,7 +59,7 @@ class GetRequest(generics.RetrieveAPIView):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['is_deleted']
+    filterset_fields = ['is_canceled']
     def getRequest(request, pk):
         req = Request.objects.get(id=pk)
         serializer = RequestSerializer(req, many=False)
@@ -135,7 +136,7 @@ class CreateStatus(generics.CreateAPIView):
 
 class UpdateReq(generics.UpdateAPIView):       
     permission_classes = [IsAuthenticated]
-    queryset = Request.objects.filter(is_deleted=False)
+    queryset = Request.objects.filter(is_canceled=False)
     serializer_class = RequestSerializer
     def updateReq(request, pk):
         data = request.data
@@ -149,19 +150,25 @@ class UpdateReq(generics.UpdateAPIView):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def cancel_req(request, pk):
+    STATUS_CANCELED = 5
     filter = Status.objects.filter(id_request=pk)
     status = filter[0]
     if status.status_code.desc == 'Em análise':
-        request = status.id_request
-        request.is_deleted = True
-        request.save()
-        return Response("Requisição cancelada com sucesso")
+        status_code_req = StatusCode.objects.filter(pk=STATUS_CANCELED)
+        status.status_code = status_code_req[0]
+        status.save()
 
-    return Response("A requisição não está com o status inicial, portanto não pode ser cancelada")
+        request = status.id_request
+        request.is_canceled = True
+        request.save()
+        return Response({'message': "Requisição cancelada com sucesso"}, status=status_code.HTTP_200_OK)
+
+    return Response({'message': "A requisição não está com o status inicial, portanto não pode ser cancelada"}, status=status_code.HTTP_400_BAD_REQUEST)
+
 
 class DeleteReq(generics.DestroyAPIView):       
     permission_classes = [IsAuthenticated]
-    queryset = Request.objects.filter(is_deleted=False)
+    queryset = Request.objects.filter(is_canceled=False)
     serializer_class = RequestSerializer 
     def deleteReq(request,pk):
         req = Request.objects.get(id=pk)

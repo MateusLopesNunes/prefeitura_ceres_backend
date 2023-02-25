@@ -26,7 +26,7 @@ class Request(models.Model):
     lon= models.CharField(max_length=50)
     created = models.DateTimeField(auto_now_add=True)
     completed = models.DateTimeField(null=True)
-    is_deleted = models.BooleanField(default=False)
+    is_canceled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.comment[0:50]
