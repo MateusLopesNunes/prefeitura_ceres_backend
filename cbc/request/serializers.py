@@ -5,7 +5,8 @@ from .models import Request, RequestType, Status, StatusCode
 class RequestSerializer(ModelSerializer):
     class Meta:
         model = Request
-        exclude = 'is_canceled'
+        #fields = '__all__'
+        exclude = ['is_canceled']
 
 class RequestTypeSerializer(ModelSerializer):
     class Meta:

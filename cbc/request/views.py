@@ -45,7 +45,7 @@ def getRoutes(request):
 
 class GetRequests(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    queryset = Request.objects.all()
+    queryset = Request.objects.order_by('-created')
     serializer_class = RequestSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['is_canceled']
@@ -83,6 +83,8 @@ class GetStatus(generics.ListAPIView):
     permission_classes = [IsAuthenticated] 
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['id_request']
     def getRequestStatus(request):
         req = Status.objects.all()
         serializer = StatusSerializer(req, many=True)
@@ -102,7 +104,7 @@ class GetUserRequests(generics.ListAPIView):
         return queryset
 
 class CreateReq(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     def createReq(request):
@@ -155,8 +157,8 @@ def cancel_req(request, pk):
     status = filter[0]
     if status.status_code.desc == 'Em análise':
         status_code_req = StatusCode.objects.filter(pk=STATUS_CANCELED)
-        status.status_code = status_code_req[0]
-        status.save()
+        newStatus = Status(id_request=status.id_request, status_code=status_code_req[0])
+        newStatus.save()
 
         request = status.id_request
         request.is_canceled = True
@@ -183,3 +185,4 @@ class GetRequestsType(generics.ListAPIView):
         reqsT = RequestType.objects.all()
         serializer = RequestTypeSerializer(reqsT, many=True)
         return Response(serializer.data)
+    

@@ -12,7 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
@@ -148,7 +147,8 @@ def createUser(request):
             telefone = data['telefone'],
             email = data['email'],
             is_active = False,
-            userType = userType[0]
+            userType = userType[0],
+            #is_superuser = True
         )
         user.set_password(data['password'])
         user.save()
@@ -187,7 +187,7 @@ class UpdateUser(generics.UpdateAPIView):
 
 
 class UpdatePass(generics.UpdateAPIView):       
-    #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     queryset = Usuario.objects.all()
     serializer_class = UsuarioPassSerializer
     def updatePass(self, request, pk):
@@ -206,6 +206,7 @@ class UpdatePass(generics.UpdateAPIView):
 
 
 class DeleteUser(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated] 
     queryset = Usuario.objects.all()
     def deleteUser(request, pk):
         user = Usuario.objects.get(pk=pk)
