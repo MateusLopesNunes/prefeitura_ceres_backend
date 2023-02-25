@@ -6,6 +6,7 @@ urlpatterns = [
   path('reqs/', views.GetRequests.as_view()),
   path('create/', views.CreateReq.as_view()),
   path('types/', views.GetRequestsType.as_view()),
+  path('create/type/', views.createRequestType.as_view()),
   path('status/', views.GetStatus.as_view()),
   path('status/user/<str:pk>', views.GetUserRequestStatus.as_view()),
   path('status/code', views.GetStatusList.as_view()),

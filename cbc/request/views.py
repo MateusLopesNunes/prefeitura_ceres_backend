@@ -186,3 +186,9 @@ class GetRequestsType(generics.ListAPIView):
         serializer = RequestTypeSerializer(reqsT, many=True)
         return Response(serializer.data)
     
+class createRequestType(generics.CreateAPIView):
+    #permission_classes = [IsAuthenticated]
+    queryset = RequestType.objects.all()
+    serializer_class = RequestTypeSerializer
+    
+        
