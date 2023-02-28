@@ -119,6 +119,12 @@ class CreateReq(generics.CreateAPIView):
             lat= data['lat'],
             lon= data['lon'] 
         )
+
+        status_code_req = StatusCode.objects.filter(id=1)
+        status_req = Status(id_request=req, status_code=status_code_req[0])
+        status_req.save()
+        print(status_req)
+
         serializer = RequestSerializer(req, many=False)
         return Response(serializer.data)
 
@@ -187,6 +193,11 @@ class GetRequestsType(generics.ListAPIView):
         return Response(serializer.data)
     
 class createRequestType(generics.CreateAPIView):
+    #permission_classes = [IsAuthenticated]
+    queryset = RequestType.objects.all()
+    serializer_class = RequestTypeSerializer
+
+class deleteRequestType(generics.DestroyAPIView):
     #permission_classes = [IsAuthenticated]
     queryset = RequestType.objects.all()
     serializer_class = RequestTypeSerializer

@@ -134,8 +134,21 @@ class GetLogin(APIView):
 
 @api_view(['POST'])
 def createUser(request):
-    userType = UserType.objects.filter(id=1)
+    CIDADAO = 1
+    userType = UserType.objects.filter(id=CIDADAO)
     print(userType)
+
+    user_email = User.objects.filter(email=request.data['email'])
+    user_cpf = User.objects.filter(cpf=request.data['cpf'])
+
+    if (user_email and user_cpf):
+        return Response({"error": "Email e cpf informados já existem"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if (user_email):
+        return Response({"error": "Este email já existe"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if (user_cpf):
+        return Response({"error": "Este cpf já existe"}, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'POST':
         data = request.data
@@ -152,8 +165,6 @@ def createUser(request):
         )
         user.set_password(data['password'])
         user.save()
-
-        print("--------------------------------")
 
         current_site = get_current_site(request)
         mail_subject = 'Ative sua conta.'
@@ -250,10 +261,17 @@ def get_tokens_for_user(user):
 def generate_jwt(request):
     cpf = request.data['cpf']
     password = request.data['password']
+
+    is_activate = User.objects.filter(cpf=cpf)
+
+    if (is_activate):
+        if is_activate[0].is_active == False:
+            return Response({'msg': 'A sua conta ainda não foi ativada'}, status=status.HTTP_401_UNAUTHORIZED)
+
     user = authenticate(request, cpf=cpf, password=password)
-    print(user)
+    
     if user is not None:
         login(request, user)
         auth_data = get_tokens_for_user(request.user)
         return Response({'user_id': user.pk, **auth_data}, status=status.HTTP_200_OK)
-    return Response({'msg': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({'msg': 'Credenciais inválidos'}, status=status.HTTP_401_UNAUTHORIZED)
