@@ -36,6 +36,7 @@ class Request(models.Model):
 
 class StatusCode(models.Model):
     desc = models.CharField(max_length=50)
+    title = models.CharField(max_length=150)
 
     def __str__(self):
         return self.desc[0:50]

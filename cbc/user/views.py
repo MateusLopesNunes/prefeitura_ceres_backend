@@ -161,7 +161,8 @@ def createUser(request):
             email = data['email'],
             is_active = False,
             userType = userType[0],
-            #is_superuser = True
+            #is_superuser = True,
+            #is_staff = True
         )
         user.set_password(data['password'])
         user.save()
@@ -269,7 +270,6 @@ def generate_jwt(request):
             return Response({'msg': 'A sua conta ainda não foi ativada'}, status=status.HTTP_401_UNAUTHORIZED)
 
     user = authenticate(request, cpf=cpf, password=password)
-    
     if user is not None:
         login(request, user)
         auth_data = get_tokens_for_user(request.user)
