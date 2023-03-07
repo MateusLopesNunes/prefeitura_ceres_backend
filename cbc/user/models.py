@@ -15,7 +15,7 @@ class Usuario(AbstractUser):
     endereco = models.CharField(max_length=255)
     telefone = models.CharField(max_length=11)
     email = models.EmailField(max_length=255, unique=True, error_messages={'unique': "O email cadastrado já existe."})
-    password = models.CharField(max_length=20)
+    password = models.CharField(max_length=255)
     userType = models.ForeignKey(UserType,on_delete=models.CASCADE, null=False)
     
     USERNAME_FIELD = 'cpf'
