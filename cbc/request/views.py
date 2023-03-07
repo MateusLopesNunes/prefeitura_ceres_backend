@@ -1,3 +1,5 @@
+import base64
+import uuid
 from rest_framework.response import Response
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
@@ -5,6 +7,7 @@ from .serializers import RequestSerializer, RequestTypeSerializer, StatusSeriali
 from .models import Request, RequestType, Status, StatusCode
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status as status_code
+from django.core.files.base import ContentFile
 from rest_framework.decorators import api_view, permission_classes
 
 @api_view(['GET'])
@@ -42,6 +45,22 @@ def getRoutes(request):
         },
     ]
     return Response(routes)
+
+def base64_str_to_image(base64_str):
+    # format recebe o que vem antes do ;base64; e imgstr o que vem depois
+    # ou seja, format recebe a extensão e imgstr a imagem
+    format, imgstr = base64_str.split(';base64,')
+    ext = format.split('/')[-1]
+    # gerando uuid para nomes únicos nas imagens
+    # para que não haja conflito nos updates
+    name = uuid.uuid4()
+    # converte uuid para string
+    name = str(name)
+    # cria o nome da imagem + a extensão
+    name_ext = name + '.' + ext
+    image = ContentFile(base64.b64decode(imgstr), name=name_ext)
+    return image, name_ext
+
 
 class GetRequests(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -109,15 +128,16 @@ class CreateReq(generics.CreateAPIView):
     serializer_class = RequestSerializer
     def createReq(request):
         data = request.data
+
         req = Request.objects.create(
             id_user = data['id_user'],
             request_type = data['request_type'],
-            img1 = data['img1'],
-            img2= data['img2'],
-            img3= data['img3'],
+            img1 = base64_str_to_image(data['img1']),
+            img2= base64_str_to_image(data['img2']),
+            img3= base64_str_to_image(data['img3']),
             comment= data['comment'],
             lat= data['lat'],
-            lon= data['lon'] 
+            lon= data['lon']
         )
 
         status_code_req = StatusCode.objects.filter(id=1)

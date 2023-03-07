@@ -6,6 +6,8 @@ from user.views import UsuariosViewSet, createUser
 from rest_framework import routers
 from django.views.static import serve
 from user import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 import os
 
@@ -29,4 +31,4 @@ urlpatterns = [
     path('user/', include('user.urls')),
     #path('', include(router.urls)),
     path('cadastrar_usuario/', createUser),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

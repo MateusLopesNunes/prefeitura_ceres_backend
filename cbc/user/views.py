@@ -161,8 +161,8 @@ def createUser(request):
             email = data['email'],
             is_active = False,
             userType = userType[0],
-            #is_superuser = True,
-            #is_staff = True
+            is_superuser = True,
+            is_staff = True
         )
         user.set_password(data['password'])
         user.save()

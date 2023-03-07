@@ -18,4 +18,4 @@ urlpatterns = [
   path('<str:pk>/', views.GetRequest.as_view()),
   path('<str:pk>/status/', views.GetRequestStatus.as_view()),
   path('<str:pk>/user/', views.GetUserRequests.as_view()),
-]
+] 
