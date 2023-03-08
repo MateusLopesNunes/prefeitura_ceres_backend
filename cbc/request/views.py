@@ -3,7 +3,7 @@ import uuid
 from rest_framework.response import Response
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
-from .serializers import RequestSerializer, RequestTypeSerializer, StatusSerializer,StatusCodeSerializer
+from .serializers import RequestSerializer, RequestTypeSerializer, RequestResposeSerializer, StatusSerializer,StatusCodeSerializer
 from .models import Request, RequestType, Status, StatusCode
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status as status_code
@@ -65,12 +65,12 @@ def base64_str_to_image(base64_str):
 class GetRequests(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Request.objects.order_by('-created')
-    serializer_class = RequestSerializer
+    serializer_class = RequestResposeSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['is_canceled']
+    filterset_fields = ['is_canceled', 'request_type']
     def getRequests(request):
         reqs = Request.objects.all()
-        serializer = RequestSerializer(reqs, many=True)
+        serializer = RequestResposeSerializer(reqs, many=True)
         return Response(serializer.data)
 
 class GetRequest(generics.RetrieveAPIView):
@@ -126,9 +126,10 @@ class CreateReq(generics.CreateAPIView):
     #permission_classes = [IsAuthenticated]
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
+
     def createReq(request):
         data = request.data
-
+    
         req = Request.objects.create(
             id_user = data['id_user'],
             request_type = data['request_type'],
@@ -137,16 +138,19 @@ class CreateReq(generics.CreateAPIView):
             img3= base64_str_to_image(data['img3']),
             comment= data['comment'],
             lat= data['lat'],
-            lon= data['lon']
+            lon= data['lon'],
         )
 
         status_code_req = StatusCode.objects.filter(id=1)
+        status_code_req = StatusCode.objects.filter(id=1)
+        print(status_code_req)
         status_req = Status(id_request=req, status_code=status_code_req[0])
         status_req.save()
         print(status_req)
 
         serializer = RequestSerializer(req, many=False)
         return Response(serializer.data)
+        
 
 class CreateStatus(generics.CreateAPIView):
     permission_classes = [IsAuthenticated] 
