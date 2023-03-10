@@ -84,9 +84,9 @@ WSGI_APPLICATION = 'cbc.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ceres_bem_cuidada',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
+        'NAME': 'Ceres_bem_cuidada',
+        'USER': 'root',
+        'PASSWORD': 'root',
         'HOST': 'localhost',
         'PORT': '3306',
     }

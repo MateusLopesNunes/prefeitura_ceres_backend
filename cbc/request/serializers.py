@@ -1,4 +1,5 @@
 from django.db import models
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from .models import Request, RequestType, Status, StatusCode
 

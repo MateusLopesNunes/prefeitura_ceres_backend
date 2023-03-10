@@ -61,6 +61,10 @@ def base64_str_to_image(base64_str):
     image = ContentFile(base64.b64decode(imgstr), name=name_ext)
     return image, name_ext
 
+def base64_to_image(base64_string):
+    format, imgstr = base64_string.split(';base64,')
+    ext = format.split('/')[-1]
+    return ContentFile(base64.b64decode(imgstr), name=uuid.uuid4().hex + "." + ext)
 
 class GetRequests(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -130,12 +134,13 @@ class CreateReq(generics.CreateAPIView):
     def createReq(request):
         data = request.data
     
+        base64_to_image()
         req = Request.objects.create(
             id_user = data['id_user'],
             request_type = data['request_type'],
-            img1 = base64_str_to_image(data['img1']),
-            img2= base64_str_to_image(data['img2']),
-            img3= base64_str_to_image(data['img3']),
+            img1 = data['img1'],
+            img2= data['img2'],
+            img3= data['img3'],
             comment= data['comment'],
             lat= data['lat'],
             lon= data['lon'],
@@ -143,10 +148,8 @@ class CreateReq(generics.CreateAPIView):
 
         status_code_req = StatusCode.objects.filter(id=1)
         status_code_req = StatusCode.objects.filter(id=1)
-        print(status_code_req)
         status_req = Status(id_request=req, status_code=status_code_req[0])
         status_req.save()
-        print(status_req)
 
         serializer = RequestSerializer(req, many=False)
         return Response(serializer.data)
@@ -226,4 +229,3 @@ class deleteRequestType(generics.DestroyAPIView):
     queryset = RequestType.objects.all()
     serializer_class = RequestTypeSerializer
     
-        
