@@ -7,6 +7,7 @@ class RequestType(models.Model):
     icon= models.ImageField(upload_to = 'assets')
     banner = models.ImageField(upload_to = 'assets')
     desc= models.CharField(max_length=100)
+    title = models.CharField(max_length=150)
 
     def __str__(self):
         return self.desc[0:50]
@@ -17,7 +18,6 @@ class RequestType(models.Model):
 
 class StatusCode(models.Model):
     desc = models.CharField(max_length=50)
-    title = models.CharField(max_length=150)
 
     def __str__(self):
         return self.desc[0:50]

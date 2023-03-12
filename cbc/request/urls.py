@@ -4,6 +4,8 @@ from . import views
 urlpatterns = [
   path('', views.getRoutes),
   path('reqs/', views.GetRequests.as_view()),
+  path('filter/type/<str:pk>', views.GetRequestByType.as_view()),
+  path('filter/code/<str:pk>', views.getRequestByStatusCode),
   path('create/', views.CreateReq.as_view()),
   path('types/', views.GetRequestsType.as_view()),
   path('create/type/', views.createRequestType.as_view()),

@@ -76,6 +76,30 @@ class GetRequests(generics.ListAPIView):
         reqs = Request.objects.all()
         serializer = RequestResposeSerializer(reqs, many=True)
         return Response(serializer.data)
+    
+
+class GetRequestByType(generics.ListAPIView):
+   #permission_classes = [IsAuthenticated] 
+    serializer_class = RequestResposeSerializer
+    def get_queryset(self):
+        queryset = Request.objects.filter(request_type__pk=self.kwargs['pk'])
+        return queryset
+    
+class GetRequestByStatusCode(generics.ListAPIView):
+    #permission_classes = [IsAuthenticated] 
+    serializer_class = RequestResposeSerializer
+    def get_queryset(self):
+        queryset = Status.objects.filter(status_code__pk=self.kwargs['pk'])
+        requests = []
+        for status in queryset:
+            requests.pop(status.id_request)
+        return requests
+
+
+@api_view(['GET'])
+def getRequestByStatusCode(request, pk):
+    pass
+
 
 class GetRequest(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated] 

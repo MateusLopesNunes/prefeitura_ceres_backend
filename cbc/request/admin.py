@@ -14,7 +14,7 @@ class RequestAdmin(admin.ModelAdmin):
     list_per_page = 10 #cria paginação
 
 class StatusCodeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'desc', 'title') #coloca os campos na tabela
+    list_display = ('id', 'desc',) #coloca os campos na tabela
     list_display_links = ('id', 'desc') #vira links
     search_fields = ('desc',) #cria uma pesquisa
     list_per_page = 10 #cria paginação
