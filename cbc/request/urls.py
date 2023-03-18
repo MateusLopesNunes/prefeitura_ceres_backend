@@ -5,8 +5,8 @@ urlpatterns = [
   path('', views.getRoutes),
   path('reqs/', views.GetRequests.as_view()),
   path('filter/type/<str:pk>', views.GetRequestByType.as_view()),
-  #path('teste/', views.getRequestByStatusCode),
   path('create/', views.createReq),
+  path('change_status/<str:pk>', views.change_request),
   path('types/', views.GetRequestsType.as_view()),
   path('create/type/', views.createRequestType.as_view()),
   path('<str:pk>/delete/type/', views.deleteRequestType.as_view()),
@@ -20,4 +20,5 @@ urlpatterns = [
   path('<str:pk>/', views.GetRequest.as_view()),
   path('<str:pk>/status/', views.GetRequestStatus.as_view()),
   path('<str:pk>/user/', views.GetUserRequests.as_view()),
+  path('commentary/', views.create_comment),
 ] 

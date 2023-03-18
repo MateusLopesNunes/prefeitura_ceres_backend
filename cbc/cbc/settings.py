@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'cbc.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Ceres_bem_cuidada',
+        'NAME': 'ceres_bem_cuidada',
         'USER': 'root',
         'PASSWORD': 'root',
         'HOST': 'localhost',
@@ -102,12 +102,6 @@ DATABASES = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
 }
-
-#possivel solução ao problema de encoding
-#DATABASE_OPTIONS = {
-#    'use_unicode': True,
-#    'charset': 'utf8'
-#}
 
 
 # Password validation
@@ -171,6 +165,8 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -182,5 +178,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "mathmedrado2022@gmail.com"
-EMAIL_HOST_PASSWORD = "wwlktsqjdkyoftsh"
+EMAIL_HOST_USER = "mateuslopesnunes48@gmail.com"
+EMAIL_HOST_PASSWORD = "iybyoiqblssibtbd"

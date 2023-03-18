@@ -1,7 +1,7 @@
 from django.db import models
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
-from .models import Request, RequestType, Status, StatusCode
+from .models import Request, RequestType, Status, StatusCode, Commentary
 
 class RequestSerializer(ModelSerializer):
     class Meta:
@@ -27,4 +27,9 @@ class StatusSerializer(ModelSerializer):
 class StatusCodeSerializer(ModelSerializer):
     class Meta:
         model = StatusCode
+        fields = '__all__'
+
+class CommentarySerializer(ModelSerializer):
+    class Meta:
+        model = Commentary
         fields = '__all__'

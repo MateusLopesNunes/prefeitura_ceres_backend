@@ -30,9 +30,9 @@ class Request(models.Model):
     id_user = models.ForeignKey(Usuario,on_delete=models.CASCADE, null=False)
     request_type = models.ForeignKey(RequestType, on_delete=models.CASCADE, null=False)
     importance = models.IntegerField(null=True)
-    img1 = models.TextField()
-    img2= models.TextField()
-    img3= models.TextField()
+    img1 = models.ImageField(upload_to='fotos/%d/%m/%Y')
+    img2= models.ImageField(upload_to='fotos/%d/%m/%Y')
+    img3= models.ImageField(upload_to='fotos/%d/%m/%Y')
     comment= models.TextField()
     lat= models.CharField(max_length=50)
     lon= models.CharField(max_length=50)
@@ -56,3 +56,12 @@ class Status(models.Model):
     class Meta:
         ordering = ['-dateTime']
     
+
+class Commentary(models.Model):
+    id_request = models.ForeignKey(Request,on_delete=models.CASCADE, null=False)
+    id_user = models.ForeignKey(Usuario,on_delete=models.CASCADE, null=False)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['id']

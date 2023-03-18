@@ -5,8 +5,8 @@ from PIL import Image
 from rest_framework.response import Response
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
-from .serializers import RequestSerializer, RequestTypeSerializer, RequestResposeSerializer, StatusSerializer,StatusCodeSerializer
-from .models import Request, RequestType, Status, StatusCode, Usuario
+from .serializers import RequestSerializer, RequestTypeSerializer, RequestResposeSerializer, StatusSerializer,StatusCodeSerializer, CommentarySerializer
+from .models import Request, RequestType, Status, StatusCode, Usuario, Commentary
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status as status_code
 from django.core.files.base import ContentFile
@@ -48,28 +48,14 @@ def getRoutes(request):
     ]
     return Response(routes)
 
-def base64_str_to_image(base64_str):
-    # format recebe o que vem antes do ;base64; e imgstr o que vem depois
-    # ou seja, format recebe a extensão e imgstr a imagem
-    format, imgstr = base64_str.split(';base64,')
-    ext = format.split('/')[-1]
-    # gerando uuid para nomes únicos nas imagens
-    # para que não haja conflito nos updates
-    name = uuid.uuid4()
-    # converte uuid para string
-    name = str(name)
-    # cria o nome da imagem + a extensão
-    name_ext = name + '.' + ext
-    image = ContentFile(base64.b64decode(imgstr), name=name_ext)
-    return image, name_ext
-
+# Util
 def base64_to_image(base64_string):
     format, imgstr = base64_string.split(';base64,')
     ext = format.split('/')[-1]
     return ContentFile(base64.b64decode(imgstr), name=uuid.uuid4().hex + "." + ext)
 
 class GetRequests(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     queryset = Request.objects.order_by('-created')
     serializer_class = RequestResposeSerializer
     filter_backends = [DjangoFilterBackend]
@@ -98,14 +84,6 @@ class GetRequestByStatusCode(generics.ListAPIView):
         return requests
 
 
-'''@api_view(['POST'])
-def getRequestByStatusCode(request):
-    img = Image.open(request.data['img'])
-    output = BytesIO()
-    img = img.resize( (100,100) )
-    return Response({"msg": img})'''
-
-
 class GetRequest(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated] 
     queryset = Request.objects.all()
@@ -118,21 +96,21 @@ class GetRequest(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 class GetRequestStatus(generics.ListAPIView):
-    permission_classes = [IsAuthenticated] 
+    #permission_classes = [IsAuthenticated] 
     serializer_class = StatusSerializer
     def get_queryset(self):
         queryset = Status.objects.filter(id_request=self.kwargs['pk'])
         return queryset
 
 class GetUserRequestStatus(generics.ListAPIView):
-    permission_classes = [IsAuthenticated] 
+    #permission_classes = [IsAuthenticated] 
     serializer_class = StatusSerializer
     def get_queryset(self):
         queryset = Status.objects.filter(id_request_id__id_user = self.kwargs['pk'])
         return queryset
 
 class GetStatus(generics.ListAPIView):
-    permission_classes = [IsAuthenticated] 
+    #permission_classes = [IsAuthenticated] 
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
     filter_backends = [DjangoFilterBackend]
@@ -143,7 +121,7 @@ class GetStatus(generics.ListAPIView):
         return Response(serializer.data)
 
 class GetStatusList(generics.ListAPIView):
-    permission_classes = [IsAuthenticated] 
+    #permission_classes = [IsAuthenticated] 
     queryset = StatusCode.objects.all()
     serializer_class = StatusCodeSerializer
 
@@ -165,9 +143,9 @@ def createReq(request):
     req = Request.objects.create(
         id_user = user[0],
         request_type = request_type[0],
-        img1 = data['img1'],
-        img2= data['img2'],
-        img3= data['img3'],
+        img1 = base64_to_image(data['img1']),
+        img2= base64_to_image(data['img2']),
+        img3= base64_to_image(data['img3']),
         comment= data['comment'],
         lat= data['lat'],
         lon= data['lon'],
@@ -229,6 +207,18 @@ def cancel_req(request, pk):
     return Response({'message': "A requisição não está com o status inicial, portanto não pode ser cancelada"}, status=status_code.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+def change_request(request, pk):
+    status = Status.objects.filter(id_request=pk)[0]
+    n_status = status.status_code.pk
+    n_status += 1
+
+    status_code = StatusCode.objects.filter(id=n_status)[0]
+    status.status_code = status_code
+    #status.save()
+    return Response({'msg': n_status})
+
+
 class DeleteReq(generics.DestroyAPIView):       
     permission_classes = [IsAuthenticated]
     queryset = Request.objects.filter(is_canceled=False)
@@ -256,4 +246,10 @@ class deleteRequestType(generics.DestroyAPIView):
     #permission_classes = [IsAuthenticated]
     queryset = RequestType.objects.all()
     serializer_class = RequestTypeSerializer
-    
+
+
+@api_view(['POST'])
+def create_comment(request):
+    comment = Commentary.objects.create(request.data)
+    serializer = CommentarySerializer(comment)
+    return Response(serializer)
