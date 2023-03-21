@@ -40,6 +40,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = ('id','nome','email','cpf','endereco','telefone','dataNasc', 'password', 'password_confirm', 'is_staff', 'is_superuser')
         extra_kwargs = {'password': {'write_only': True},'id': {'read_only': True}}
+        depth = 5
 
     def save(self):
         conta = Usuario(
@@ -116,6 +117,7 @@ class UsuarioPassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = ('id','password','new_password','new_password_confirm') 
+        depth = 5
 
     def update(self, user, data):
         
@@ -140,6 +142,7 @@ class UsuarioPartialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = ('nome','email','cpf','endereco','telefone','dataNasc')
+        depth = 5
         
     def update(self, user, data):
         user.__setattr__('email',data['email'])

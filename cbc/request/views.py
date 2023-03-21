@@ -208,15 +208,64 @@ def cancel_req(request, pk):
 
 
 @api_view(['GET'])
-def change_request(request, pk):
-    status = Status.objects.filter(id_request=pk)[0]
-    n_status = status.status_code.pk
-    n_status += 1
+def change_request(request, pk, status_code):
+    requests_instance = Request.objects.filter(id=pk)
+    status_codes_instance = StatusCode.objects.filter(id=status_code)
 
-    status_code = StatusCode.objects.filter(id=n_status)[0]
-    status.status_code = status_code
-    #status.save()
-    return Response({'msg': n_status})
+    if len(requests_instance) == 0:
+        return Response({'msg':'Solicitação não existe'})
+    
+    if len(status_codes_instance) == 0:
+        return Response({'msg':'Código do status não existe'})
+
+    request_instance = requests_instance[0]
+    status_code_instance = status_codes_instance[0]
+
+    status = Status(
+        id_request= request_instance,
+        status_code= status_code_instance
+    )
+    status.save()
+
+    request_instance.current_status = status_code_instance
+    request_instance.save()
+
+    return Response({'msg': 'Status da solicitção atualizada com sucesso'})
+
+
+@api_view(['POST'])
+def create_commentary(request):
+    data = request.data
+    id_request = Request.objects.filter(id=data['id_request'])
+    id_user = Usuario.objects.filter(id=data['id_user'])
+
+    if len(id_request) == 0:
+        return Response({'msg':'Solicitação não existe'})
+    
+    if len(id_user) == 0:
+        return Response({'msg':'Usuário não existe'})
+
+    comment = Commentary(
+        id_request= id_request[0],
+        id_user= id_user[0],
+        message= data['message']
+    )
+
+    comment.save()
+    serializer = CommentarySerializer(comment)
+    return Response(serializer.data)
+
+
+class GetComments(generics.ListAPIView):
+    #permission_classes = [IsAuthenticated]
+    queryset = Commentary.objects.order_by('-created_at')
+    serializer_class = CommentarySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['id_request']
+    def getComments(request):
+        reqsT = Commentary.objects.all()
+        serializer = CommentarySerializer(reqsT, many=True)
+        return Response(serializer.data)
 
 
 class DeleteReq(generics.DestroyAPIView):       
@@ -246,10 +295,3 @@ class deleteRequestType(generics.DestroyAPIView):
     #permission_classes = [IsAuthenticated]
     queryset = RequestType.objects.all()
     serializer_class = RequestTypeSerializer
-
-
-@api_view(['POST'])
-def create_comment(request):
-    comment = Commentary.objects.create(request.data)
-    serializer = CommentarySerializer(comment)
-    return Response(serializer)
