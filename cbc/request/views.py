@@ -10,6 +10,7 @@ from .models import Request, RequestType, Status, StatusCode, Usuario, Commentar
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status as status_code
 from django.core.files.base import ContentFile
+from datetime import datetime
 from rest_framework.decorators import api_view, permission_classes
 
 @api_view(['GET'])
@@ -154,6 +155,7 @@ def createReq(request):
         comment= data['comment'],
         lat= data['lat'],
         lon= data['lon'],
+        current_status_updated_at= datetime.now()
     )
     req.save()
 
@@ -197,24 +199,25 @@ class UpdateReq(generics.UpdateAPIView):
 #@permission_classes([IsAuthenticated])
 def cancel_req(request, pk):
     STATUS_CANCELED = 5
-    filter = Status.objects.filter(id_request=pk)
+    STATUS_EM_ADAMENTO = 1
+    filter = Request.objects.filter(id=pk)
 
     if len(filter) == 0:
         return Response({'msg':'Este status da solicitação não existe'})
 
-    status = filter[0]
-    if status.status_code.desc == 'Em análise':
+    request = filter[0]
+    if request.current_status.pk == STATUS_EM_ADAMENTO:
         status_code_req = StatusCode.objects.filter(pk=STATUS_CANCELED)
 
         if len(status_code_req) == 0:
             return Response({'msg':'Este código de status não existe'})
 
-        newStatus = Status(id_request=status.id_request, status_code=status_code_req[0])
+        newStatus = Status(id_request=request, status_code=status_code_req[0])
         newStatus.save()
 
-        request = status.id_request
         request.is_canceled = True
         request.current_status = status_code_req[0]
+        request.current_status_updated_at = datetime.now()
         request.save()
         return Response({'message': "Requisição cancelada com sucesso"}, status=status_code.HTTP_200_OK)
 
@@ -245,6 +248,7 @@ def change_request(request, pk, status_code):
     status.save()
 
     request_instance.current_status = status_code_instance
+    request_instance.current_status_updated_at = datetime.now()
     request_instance.save()
     return Response({'msg': 'Status da solicitção atualizada com sucesso'})
 

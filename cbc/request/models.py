@@ -40,6 +40,7 @@ class Request(models.Model):
     completed = models.DateTimeField(null=True)
     is_canceled = models.BooleanField(default=False)
     current_status = models.ForeignKey(StatusCode,on_delete=models.CASCADE, default=1)
+    current_status_updated_at = models.DateTimeField(null=True)
 
     def __str__(self):
         return self.comment[0:50]
