@@ -60,7 +60,12 @@ class GetRequests(generics.ListAPIView):
     serializer_class = RequestResposeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['is_canceled', 'request_type', "current_status"]
-    def getRequests(request):
+    def list(self, request):
+        name_param = self.request.query_params.get('name')
+
+        if name_param:
+            return Response({'msg':name_param}) 
+
         reqs = Request.objects.all()
         serializer = RequestResposeSerializer(reqs, many=True)
         return Response(serializer.data)
@@ -85,14 +90,14 @@ class GetRequestByStatusCode(generics.ListAPIView):
 
 
 class GetRequest(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated] 
+    #permission_classes = [IsAuthenticated] 
     queryset = Request.objects.all()
-    serializer_class = RequestSerializer
+    serializer_class = RequestResposeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['is_canceled']
     def getRequest(request, pk):
         req = Request.objects.get(id=pk)
-        serializer = RequestSerializer(req, many=False)
+        serializer = RequestResposeSerializer(req, many=False)
         return Response(serializer.data)
 
 class GetRequestStatus(generics.ListAPIView):
@@ -128,7 +133,7 @@ class GetStatusList(generics.ListAPIView):
 class GetUserRequests(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Request.objects.all()
-    serializer_class = RequestSerializer
+    serializer_class = RequestResposeSerializer
     def get_queryset(self):
         queryset = Request.objects.filter(id_user=self.kwargs['pk'])
         return queryset
@@ -189,18 +194,27 @@ class UpdateReq(generics.UpdateAPIView):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def cancel_req(request, pk):
     STATUS_CANCELED = 5
     filter = Status.objects.filter(id_request=pk)
+
+    if len(filter) == 0:
+        return Response({'msg':'Este status da solicitação não existe'})
+
     status = filter[0]
     if status.status_code.desc == 'Em análise':
         status_code_req = StatusCode.objects.filter(pk=STATUS_CANCELED)
+
+        if len(status_code_req) == 0:
+            return Response({'msg':'Este código de status não existe'})
+
         newStatus = Status(id_request=status.id_request, status_code=status_code_req[0])
         newStatus.save()
 
         request = status.id_request
         request.is_canceled = True
+        request.current_status = status_code_req[0]
         request.save()
         return Response({'message': "Requisição cancelada com sucesso"}, status=status_code.HTTP_200_OK)
 
@@ -221,6 +235,9 @@ def change_request(request, pk, status_code):
     request_instance = requests_instance[0]
     status_code_instance = status_codes_instance[0]
 
+    if status_code_instance.pk > 3:
+        return Response({'msg':'Código do status inválido'})
+
     status = Status(
         id_request= request_instance,
         status_code= status_code_instance
@@ -229,7 +246,6 @@ def change_request(request, pk, status_code):
 
     request_instance.current_status = status_code_instance
     request_instance.save()
-
     return Response({'msg': 'Status da solicitção atualizada com sucesso'})
 
 
