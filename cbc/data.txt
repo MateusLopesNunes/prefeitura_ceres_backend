@@ -1,0 +1,14 @@
+create database if not exists teste;
+use teste;
+
+insert into request_statuscode values(default, 'Em análise'), (default, 'Em andamento'), 
+									 (default, 'Concluída'), (default, 'Rejeitada'), (default, 'Cancelada');
+insert into user_usertype values(default, 'Cidadão'), (default, 'Gestor'), 
+								(default, 'Admin'), (default, 'Inativo'), (default, 'Bloqueado');
+                                     
+INSERT INTO user_usuario
+	(`last_login`, `is_active`, `date_joined`, `nome`, `dataNasc`, `cpf`, `endereco`,
+    `telefone`, `email`, `password`, `is_staff`, `is_superuser`, `userType_id`)
+ VALUES ('2023-03-21 12:47:59.445710', '1', '2023-03-21 15:05:36.464257', 'admin', 
+	'2023-01-12', '000000000000', 'endereco', '62994366518', 'mateuslopesnunes48@gmail.com', 
+	'pbkdf2_sha256$390000$pwF5mXPK1cN3fodS4sAtgI$cu1dIAsUhBlUdfuZ2sKIK/lL/EBwJhhNZe96MAXn1Nk=', '1', '1', '1');

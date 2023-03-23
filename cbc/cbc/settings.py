@@ -91,7 +91,7 @@ DATABASES = {
         'PORT': '3306',
     },
     'OPTIONS': {
-        'charset': 'utf8mb4'  # This is the relevant line
+        'charset': 'utf8mb4',  # This is the relevant line
     }
 }
 
