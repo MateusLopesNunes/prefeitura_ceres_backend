@@ -62,10 +62,26 @@ class GetRequests(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['is_canceled', 'request_type', "current_status"]
     def list(self, request):
-        name_param = self.request.query_params.get('name')
+        request_type_param = self.request.query_params.get('request_type')
+        current_status_param = self.request.query_params.get('current_status')
+        start_date_param = self.request.query_params.get('start_date')
+        end_date_param = self.request.query_params.get('end_date')
 
-        if name_param:
-            return Response({'msg':name_param}) 
+        if request_type_param:
+            reqs = Request.objects.filter(request_type=int(request_type_param))
+            serializer = RequestResposeSerializer(reqs, many=True)
+            return Response(serializer.data)
+        
+        if current_status_param:
+            reqs = Request.objects.filter(current_status=int(current_status_param))
+            serializer = RequestResposeSerializer(reqs, many=True)
+            return Response(serializer.data)
+        
+        if start_date_param and end_date_param:
+            reqs = Request.objects.raw(f"select * from request_request where created between '{start_date_param}' and '{end_date_param}'")
+            serializer = RequestResposeSerializer(reqs, many=True)
+            print(reqs)
+            return Response(serializer.data)
 
         reqs = Request.objects.all()
         serializer = RequestResposeSerializer(reqs, many=True)
