@@ -11,6 +11,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status as status_code
 from django.core.files.base import ContentFile
 from datetime import datetime
+from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes
 
 @api_view(['GET'])
@@ -59,9 +60,40 @@ class GetRequests(generics.ListAPIView):
     #permission_classes = [IsAuthenticated]
     queryset = Request.objects.order_by('-created')
     serializer_class = RequestResposeSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['is_canceled', 'request_type', "current_status"]
-    def list(self, request):
+    #filter_backends = [DjangoFilterBackend]
+    #filterset_fields = ['is_canceled', 'request_type', "current_status"]
+    #filterset_fields = ['is_canceled']
+    #filterset_class = ProdutoFilter
+
+    def get_queryset(self):
+        queryset = Request.objects.all()
+
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(
+                Q(current_status__icontains=search) | 
+                Q(request_type__icontains=search) |
+                Q(created__icontains=search) 
+            )
+
+        current_status = self.request.query_params.get('current_status', None)
+        if current_status:
+            queryset = queryset.filter(current_status=current_status)
+
+        request_type = self.request.query_params.get('request_type', None)
+        if request_type:
+            queryset = queryset.filter(request_type=request_type)
+
+        start_date = self.request.query_params.get('start_date', None)
+        end_date = self.request.query_params.get('end_date', None)
+        if start_date and end_date:
+            queryset = queryset.filter(created__gte=start_date, created__lte=end_date)
+            #queryset = queryset.raw(f"select * from request_request where created between '{start_date}' and '{end_date}'")
+    
+
+        return queryset
+
+    '''def list(self, request):
         request_type_param = self.request.query_params.get('request_type')
         current_status_param = self.request.query_params.get('current_status')
         start_date_param = self.request.query_params.get('start_date')
@@ -84,8 +116,9 @@ class GetRequests(generics.ListAPIView):
             return Response(serializer.data)
 
         reqs = Request.objects.all()
+
         serializer = RequestResposeSerializer(reqs, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data)'''
     
 
 class GetRequestByType(generics.ListAPIView):
@@ -130,6 +163,7 @@ class GetUserRequestStatus(generics.ListAPIView):
     def get_queryset(self):
         queryset = Status.objects.filter(id_request_id__id_user = self.kwargs['pk'])
         return queryset
+
 
 class GetStatus(generics.ListAPIView):
     #permission_classes = [IsAuthenticated] 

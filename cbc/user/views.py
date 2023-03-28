@@ -97,7 +97,11 @@ def activate(request, uidb64, token):
         user.save()
         login(request, user)
         # return redirect('home')
-        return HttpResponse('Seu email foi confirmado')
+        return HttpResponse(
+            '<h2 style="font-family: Arial, Helvetica, sans-serif;">' +
+                'Seu email foi confirmado' +
+            '</h2>'
+            )
     else:
         return HttpResponse('Link invalido!')
 
@@ -112,7 +116,7 @@ class ListaUsuarios(generics.ListAPIView):
     serializer_class = UsuarioSerializer
 
 class GetUsers(APIView): 
-    permission_classes = [IsAuthenticated] 
+    #permission_classes = [IsAuthenticated] 
     def get(self, request):
         users = Usuario.objects.all()
         serializer = UsuarioSerializer(users, many=True)
@@ -218,7 +222,7 @@ class UpdatePass(generics.UpdateAPIView):
 
 
 class DeleteUser(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated] 
+    #permission_classes = [IsAuthenticated] 
     queryset = Usuario.objects.all()
     def deleteUser(request, pk):
         user = Usuario.objects.get(pk=pk)
