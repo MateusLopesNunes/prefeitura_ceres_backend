@@ -10,42 +10,31 @@ from .models import Request, RequestType, Status, StatusCode, Usuario, Commentar
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status as status_code
 from django.core.files.base import ContentFile
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes
 
 @api_view(['GET'])
 def getRoutes(request):
+    comment = {"id_request": "10", "id_user": "1", "message": "Café extra forte não é Café"}
     routes = [
         {
-            'Endpoint': '/requests/',
+            'Endpoint': '/request/reqs?request_type=<id>&current_status=<id>&start_date=<2023-03-13>&end_date=<2023-03-17>',
             'method': 'GET',
             'body': None,
-            'description': ''
+            'description': 'Busca todos os requests e aplica vários filtros simultaneamente'
         },
         {
-            'Endpoint': '/requests/<id>',
+            'Endpoint': '/request/comment/?request_id=<id>',
             'method': 'GET',
             'body': None,
-            'description': ''
+            'description': 'Busca todos os comentários ou busca todos os comentários de um request'
         },
         {
-            'Endpoint': '/requests/create',
+            'Endpoint': f'/request/create/comment/',
             'method': 'POST',
-            'body': {'body': ""},
-            'description': ''
-        },
-        {
-            'Endpoint': '/requests/<id>/update',
-            'method': 'PUT',
-            'body': {'body': ""},
-            'description': ''
-        },
-        {
-            'Endpoint': '/requests/<id>/delete',
-            'method': 'DELETE',
-            'body': None,
-            'description': ''
+            'body': comment,
+            'description': 'Cadastra um comentário'
         },
     ]
     return Response(routes)
@@ -86,11 +75,18 @@ class GetRequests(generics.ListAPIView):
 
         start_date = self.request.query_params.get('start_date', None)
         end_date = self.request.query_params.get('end_date', None)
+
         if start_date and end_date:
-            queryset = queryset.filter(created__gte=start_date, created__lte=end_date)
+            date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            new_start_date = date + timedelta(-1)
+
+            date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            new_end_date = date + timedelta(1)
+
+            queryset = queryset.filter(created__range=[new_start_date, new_end_date])
+            #queryset = queryset.filter(created__gt=start_date, created__lt=end_date)
             #queryset = queryset.raw(f"select * from request_request where created between '{start_date}' and '{end_date}'")
     
-
         return queryset
 
     '''def list(self, request):
