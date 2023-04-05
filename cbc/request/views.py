@@ -249,7 +249,7 @@ def cancel_req(request, pk):
     filter = Request.objects.filter(id=pk)
 
     if len(filter) == 0:
-        return Response({'msg':'Este status da solicitação não existe'})
+        return Response({'msg':'Esta solicitação não existe'})
 
     request = filter[0]
     if request.current_status.pk == STATUS_EM_ADAMENTO:
@@ -265,9 +265,9 @@ def cancel_req(request, pk):
         request.current_status = status_code_req[0]
         request.current_status_updated_at = datetime.now()
         request.save()
-        return Response({'message': "Requisição cancelada com sucesso"}, status=status_code.HTTP_200_OK)
+        return Response({'msg': "Requisição cancelada com sucesso"}, status=status_code.HTTP_200_OK)
 
-    return Response({'message': "A requisição não está com o status inicial, portanto não pode ser cancelada"}, status=status_code.HTTP_400_BAD_REQUEST)
+    return Response({'msg': "A requisição não está com o status inicial, portanto não pode ser cancelada"}, status=status_code.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

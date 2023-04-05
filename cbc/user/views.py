@@ -247,7 +247,7 @@ def resetPassword(request):
         mail_subject = 'Recuperação de senha'
         message = f'Sua nova senha é: {new_password}'
         send_email(message, mail_subject, user.email)
-        return Response({'message': 'A sua nova senha foi enviada para seu email'}, status=status.HTTP_200_OK)
+        return Response({'msg': 'A sua nova senha foi enviada para seu email'}, status=status.HTTP_200_OK)
 
     return Response({'error': 'Email ou cpf inválidos'}, status=status.HTTP_400_BAD_REQUEST)
 
