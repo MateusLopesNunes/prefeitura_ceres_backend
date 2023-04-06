@@ -4,7 +4,6 @@ from . import views
 urlpatterns = [
     path('', views.getRoutes),
     path('create/', views.createUser),
-    #path('signup/', views.ListaUsuarios.as_view(), name='signup'),
     path('activate/<uidb64>/<token>/', views.activate, name='activate'),
     path('users/', views.GetUsers.as_view()),
     path('login/<str:cpf>', views.GetLogin.as_view()),

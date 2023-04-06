@@ -46,7 +46,7 @@ def base64_to_image(base64_string):
     return ContentFile(base64.b64decode(base64_string), name=uuid.uuid4().hex + ".jpg")
 
 class GetRequests(generics.ListAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = Request.objects.order_by('-created')
     serializer_class = RequestResposeSerializer
     #filter_backends = [DjangoFilterBackend]
@@ -82,50 +82,20 @@ class GetRequests(generics.ListAPIView):
 
             date = datetime.strptime(end_date, '%Y-%m-%d').date()
             new_end_date = date + timedelta(1)
-
             queryset = queryset.filter(created__range=[new_start_date, new_end_date])
-            #queryset = queryset.filter(created__gt=start_date, created__lt=end_date)
-            #queryset = queryset.raw(f"select * from request_request where created between '{start_date}' and '{end_date}'")
     
         return queryset
-
-    '''def list(self, request):
-        request_type_param = self.request.query_params.get('request_type')
-        current_status_param = self.request.query_params.get('current_status')
-        start_date_param = self.request.query_params.get('start_date')
-        end_date_param = self.request.query_params.get('end_date')
-
-        if request_type_param:
-            reqs = Request.objects.filter(request_type=int(request_type_param))
-            serializer = RequestResposeSerializer(reqs, many=True)
-            return Response(serializer.data)
-        
-        if current_status_param:
-            reqs = Request.objects.filter(current_status=int(current_status_param))
-            serializer = RequestResposeSerializer(reqs, many=True)
-            return Response(serializer.data)
-        
-        if start_date_param and end_date_param:
-            reqs = Request.objects.raw(f"select * from request_request where created between '{start_date_param}' and '{end_date_param}'")
-            serializer = RequestResposeSerializer(reqs, many=True)
-            print(reqs)
-            return Response(serializer.data)
-
-        reqs = Request.objects.all()
-
-        serializer = RequestResposeSerializer(reqs, many=True)
-        return Response(serializer.data)'''
     
 
 class GetRequestByType(generics.ListAPIView):
-   #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     serializer_class = RequestResposeSerializer
     def get_queryset(self):
         queryset = Request.objects.filter(request_type__pk=self.kwargs['pk'])
         return queryset
     
 class GetRequestByStatusCode(generics.ListAPIView):
-    #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     serializer_class = RequestResposeSerializer
     def get_queryset(self):
         queryset = Status.objects.filter(status_code__pk=self.kwargs['pk'])
@@ -136,7 +106,7 @@ class GetRequestByStatusCode(generics.ListAPIView):
 
 
 class GetRequest(generics.RetrieveAPIView):
-    #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     queryset = Request.objects.all()
     serializer_class = RequestResposeSerializer
     filter_backends = [DjangoFilterBackend]
@@ -147,14 +117,14 @@ class GetRequest(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 class GetRequestStatus(generics.ListAPIView):
-    #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     serializer_class = StatusSerializer
     def get_queryset(self):
         queryset = Status.objects.filter(id_request=self.kwargs['pk'])
         return queryset
 
 class GetUserRequestStatus(generics.ListAPIView):
-    #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     serializer_class = StatusSerializer
     def get_queryset(self):
         queryset = Status.objects.filter(id_request_id__id_user = self.kwargs['pk'])
@@ -162,7 +132,7 @@ class GetUserRequestStatus(generics.ListAPIView):
 
 
 class GetStatus(generics.ListAPIView):
-    #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
     filter_backends = [DjangoFilterBackend]
@@ -173,7 +143,7 @@ class GetStatus(generics.ListAPIView):
         return Response(serializer.data)
 
 class GetStatusList(generics.ListAPIView):
-    #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     queryset = StatusCode.objects.all()
     serializer_class = StatusCodeSerializer
 
@@ -242,7 +212,7 @@ class UpdateReq(generics.UpdateAPIView):
 
 
 @api_view(['PUT'])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def cancel_req(request, pk):
     STATUS_CANCELED = 5
     STATUS_EM_ADAMENTO = 1
@@ -323,7 +293,7 @@ def create_commentary(request):
 
 
 class GetComments(generics.ListAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = Commentary.objects.order_by('-created_at')
     serializer_class = CommentarySerializer
     filter_backends = [DjangoFilterBackend]
@@ -353,11 +323,11 @@ class GetRequestsType(generics.ListAPIView):
         return Response(serializer.data)
     
 class createRequestType(generics.CreateAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = RequestType.objects.all()
     serializer_class = RequestTypeSerializer
 
 class deleteRequestType(generics.DestroyAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = RequestType.objects.all()
     serializer_class = RequestTypeSerializer

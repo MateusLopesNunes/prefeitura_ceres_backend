@@ -85,7 +85,7 @@ def send_email(message, title, user_email):
     email.send()
     
 
-#Andpoints
+#endpoints
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -96,7 +96,6 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
         login(request, user)
-        # return redirect('home')
         return HttpResponse(
             '<h2 style="font-family: Arial, Helvetica, sans-serif;">' +
                 'Seu email foi confirmado' +
@@ -116,7 +115,7 @@ class ListaUsuarios(generics.ListAPIView):
     serializer_class = UsuarioSerializer
 
 class GetUsers(APIView): 
-    #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     def get(self, request):
         users = Usuario.objects.all()
         serializer = UsuarioSerializer(users, many=True)
@@ -165,8 +164,8 @@ def createUser(request):
             email = data['email'],
             is_active = False,
             userType = userType[0],
-            is_superuser = True,
-            is_staff = True
+            is_superuser = False,
+            is_staff = False
         )
         user.set_password(data['password'])
         user.save()
@@ -183,10 +182,7 @@ def createUser(request):
 
         return HttpResponse('Confirme seu email para confirmar o registro')
 
-        #serializer = UsuarioSerializer(user, many=False)
-       # return Response(serializer.data)
 
-#@method_decorator(api_view(['PUT']), name='dispatch')
 class UpdateUser(generics.UpdateAPIView):       
     permission_classes = [IsAuthenticated] 
     queryset = Usuario.objects.all()
@@ -222,7 +218,7 @@ class UpdatePass(generics.UpdateAPIView):
 
 
 class DeleteUser(generics.DestroyAPIView):
-    #permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] 
     queryset = Usuario.objects.all()
     def deleteUser(request, pk):
         user = Usuario.objects.get(pk=pk)
