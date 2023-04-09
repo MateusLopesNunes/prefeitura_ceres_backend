@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from user.views import UsuariosViewSet, createUser
 from rest_framework import routers
 from django.views.static import serve
@@ -27,6 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('token/', views.generate_jwt),
     path('token/refresh/', TokenRefreshView.as_view()),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('request/', include('request.urls')),
     path('user/', include('user.urls')),
     #path('', include(router.urls)),

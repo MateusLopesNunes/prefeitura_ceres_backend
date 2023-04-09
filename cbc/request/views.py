@@ -46,7 +46,7 @@ def base64_to_image(base64_string):
     return ContentFile(base64.b64decode(base64_string), name=uuid.uuid4().hex + ".jpg")
 
 class GetRequests(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     queryset = Request.objects.order_by('-created')
     serializer_class = RequestResposeSerializer
     #filter_backends = [DjangoFilterBackend]
@@ -298,6 +298,7 @@ class GetComments(generics.ListAPIView):
     serializer_class = CommentarySerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['id_request']
+
     def getComments(request):
         reqsT = Commentary.objects.all()
         serializer = CommentarySerializer(reqsT, many=True)
