@@ -168,8 +168,7 @@ def createUser(request):
             is_staff = False
         )
         user.set_password(data['password'])
-        user.save()
-
+        
         current_site = get_current_site(request)
         mail_subject = 'Ative sua conta.'
         message = render_to_string('acc_active_email.html', {
@@ -180,6 +179,7 @@ def createUser(request):
         })
         send_email(message, mail_subject, user.email)
 
+        user.save()
         return HttpResponse('Confirme seu email para confirmar o registro')
 
 

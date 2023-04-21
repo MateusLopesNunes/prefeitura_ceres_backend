@@ -49,9 +49,9 @@ class GetRequests(generics.ListAPIView):
     #permission_classes = [IsAuthenticated]
     queryset = Request.objects.order_by('-created')
     serializer_class = RequestResposeSerializer
-    #filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend]
     #filterset_fields = ['is_canceled', 'request_type', "current_status"]
-    #filterset_fields = ['is_canceled']
+    filterset_fields = ['is_canceled']
     #filterset_class = ProdutoFilter
 
     def get_queryset(self):
@@ -90,6 +90,8 @@ class GetRequests(generics.ListAPIView):
 class GetRequestByType(generics.ListAPIView):
     permission_classes = [IsAuthenticated] 
     serializer_class = RequestResposeSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['is_canceled']
     def get_queryset(self):
         queryset = Request.objects.filter(request_type__pk=self.kwargs['pk'])
         return queryset
