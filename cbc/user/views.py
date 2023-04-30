@@ -263,15 +263,17 @@ def generate_jwt(request):
     cpf = request.data['cpf']
     password = request.data['password']
 
-    is_activate = User.objects.filter(cpf=cpf)
+    userByCpf = User.objects.filter(cpf=cpf)
 
-    if (is_activate):
-        if is_activate[0].is_active == False:
-            return Response({'msg': 'A sua conta ainda não foi ativada'}, status=status.HTTP_401_UNAUTHORIZED)
+    if (userByCpf):
+        if userByCpf[0].is_active == False:
+            return Response({'msg': 'Conta ainda não ativada'}, status=status.HTTP_401_UNAUTHORIZED)
 
     user = authenticate(request, cpf=cpf, password=password)
     if user is not None:
+        
+
         login(request, user)
         auth_data = get_tokens_for_user(request.user)
         return Response({'user_id': user.pk, **auth_data}, status=status.HTTP_200_OK)
-    return Response({'msg': 'Credenciais inválidos'}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({'msg': 'Usuário ou senha incorretos'}, status=status.HTTP_401_UNAUTHORIZED)

@@ -46,13 +46,11 @@ def base64_to_image(base64_string):
     return ContentFile(base64.b64decode(base64_string), name=uuid.uuid4().hex + ".jpg")
 
 class GetRequests(generics.ListAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = Request.objects.order_by('-created')
     serializer_class = RequestResposeSerializer
     filter_backends = [DjangoFilterBackend]
-    #filterset_fields = ['is_canceled', 'request_type', "current_status"]
     filterset_fields = ['is_canceled']
-    #filterset_class = ProdutoFilter
 
     def get_queryset(self):
         queryset = Request.objects.all()
