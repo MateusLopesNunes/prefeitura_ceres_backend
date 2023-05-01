@@ -261,7 +261,7 @@ def change_request(request, pk, status_code):
     if status_code_instance.pk == 5:
         return Response({'msg':'Código do status inválido'})
 
-    if request_instance.current_status == status_code:
+    if request_instance.current_status.pk == int(status_code):
         return Response({'msg': 'Escolha um status diferente do atual'})
 
     status = Status(
