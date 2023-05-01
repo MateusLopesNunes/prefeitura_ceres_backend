@@ -143,9 +143,13 @@ class GetStatus(generics.ListAPIView):
         return Response(serializer.data)
 
 class GetStatusList(generics.ListAPIView):
-    permission_classes = [IsAuthenticated] 
+    #permission_classes = [IsAuthenticated] 
     queryset = StatusCode.objects.all()
     serializer_class = StatusCodeSerializer
+    def get_queryset(self):
+        queryset = StatusCode.objects.raw('SELECT * FROM request_statuscode WHERE `id` <> 5')
+        return queryset
+
 
 class GetUserRequests(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -254,8 +258,11 @@ def change_request(request, pk, status_code):
     request_instance = requests_instance[0]
     status_code_instance = status_codes_instance[0]
 
-    if status_code_instance.pk > 3:
+    if status_code_instance.pk == 5:
         return Response({'msg':'Código do status inválido'})
+
+    if request_instance.current_status == status_code:
+        return Response({'msg': 'Escolha um status diferente do atual'})
 
     status = Status(
         id_request= request_instance,

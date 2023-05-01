@@ -264,14 +264,12 @@ def generate_jwt(request):
     password = request.data['password']
 
     userByCpf = User.objects.filter(cpf=cpf)
-
     if (userByCpf):
         if userByCpf[0].is_active == False:
             return Response({'msg': 'Conta ainda não ativada'}, status=status.HTTP_401_UNAUTHORIZED)
 
     user = authenticate(request, cpf=cpf, password=password)
     if user is not None:
-        
 
         login(request, user)
         auth_data = get_tokens_for_user(request.user)
