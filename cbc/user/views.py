@@ -271,7 +271,7 @@ def generate_jwt(request):
     user = authenticate(request, cpf=cpf, password=password)
     if user is not None:
 
-        login(request, user)
+        #login(request, user)
         auth_data = get_tokens_for_user(request.user)
         return Response({'user_id': user.pk, **auth_data}, status=status.HTTP_200_OK)
     return Response({'msg': 'Usuário ou senha incorretos'}, status=status.HTTP_401_UNAUTHORIZED)
