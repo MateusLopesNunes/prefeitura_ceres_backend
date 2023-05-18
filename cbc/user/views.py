@@ -21,7 +21,7 @@ from .tokens import account_activation_token
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from random import choice
@@ -121,12 +121,13 @@ class GetUsers(APIView):
         serializer = UsuarioSerializer(users, many=True)
         return Response(serializer.data)
 
-class GetUser(APIView):       
-    permission_classes = [IsAuthenticated]  
-    def get(self, request, pk):
-        user = Usuario.objects.get(pk=pk)
-        serializer = UsuarioSerializer(user, many=False)
-        return Response(serializer.data)
+class GetUser(generics.ListAPIView):       
+    permission_classes = [IsAuthenticated]
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+    def get_queryset(self):
+        queryset = Usuario.objects.filter(pk=self.kwargs['pk'])
+        return queryset
 
 class GetLogin(APIView):       
     permission_classes = [IsAuthenticated]  
@@ -271,7 +272,7 @@ def generate_jwt(request):
     user = authenticate(request, cpf=cpf, password=password)
     if user is not None:
 
-        #login(request, user)
+        login(request, user)
         auth_data = get_tokens_for_user(request.user)
         return Response({'user_id': user.pk, **auth_data}, status=status.HTTP_200_OK)
     return Response({'msg': 'Usuário ou senha incorretos'}, status=status.HTTP_401_UNAUTHORIZED)
