@@ -15,3 +15,5 @@ INSERT INTO user_usuario
 
 -- Atualizar os registro da tabela de StatusCode
 UPDATE request_statuscode SET `desc` = 'Recusada' WHERE id = 4;
+
+update user_usuario set is_superuser = true where id = <id do usuario>
