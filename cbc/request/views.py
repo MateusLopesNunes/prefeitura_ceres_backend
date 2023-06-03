@@ -76,7 +76,7 @@ class GetRequests(generics.ListAPIView):
 
         if start_date and end_date:
             date = datetime.strptime(start_date, '%Y-%m-%d').date()
-            new_start_date = date + timedelta(-1)
+            new_start_date = date
 
             date = datetime.strptime(end_date, '%Y-%m-%d').date()
             new_end_date = date + timedelta(1)
