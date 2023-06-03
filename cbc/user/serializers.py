@@ -141,14 +141,13 @@ class UsuarioPassSerializer(serializers.ModelSerializer):
 class UsuarioPartialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ('nome','email','cpf','endereco','telefone','dataNasc')
+        fields = ('nome','email','endereco','telefone','dataNasc')
         depth = 5
         
     def update(self, user, data):
         user.__setattr__('email',data['email'])
         user.__setattr__('nome',data['nome'])
         user.__setattr__('dataNasc',data['dataNasc'])  
-        user.__setattr__('cpf',data['cpf'])
         user.__setattr__('endereco',data['endereco']) 
         user.__setattr__('telefone', data['telefone'])
     

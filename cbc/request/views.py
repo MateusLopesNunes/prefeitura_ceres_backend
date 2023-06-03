@@ -219,14 +219,14 @@ class UpdateReq(generics.UpdateAPIView):
 @permission_classes([IsAuthenticated])
 def cancel_req(request, pk):
     STATUS_CANCELED = 5
-    STATUS_EM_ADAMENTO = 1
+    STATUS_EM_ANALISE = 1
     filter = Request.objects.filter(id=pk)
 
     if len(filter) == 0:
         return Response({'msg':'Esta solicitação não existe'})
 
     request = filter[0]
-    if request.current_status.pk == STATUS_EM_ADAMENTO:
+    if request.current_status.pk == STATUS_EM_ANALISE:
         status_code_req = StatusCode.objects.filter(pk=STATUS_CANCELED)
 
         if len(status_code_req) == 0:
