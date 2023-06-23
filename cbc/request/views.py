@@ -13,8 +13,9 @@ from django.core.files.base import ContentFile
 from datetime import datetime, timedelta
 from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes
-import xlwt
 from django.http import HttpResponse
+import openpyxl
+from django.http import FileResponse
 
 
 @api_view(['GET'])
@@ -301,62 +302,33 @@ def create_commentary(request):
     serializer = CommentarySerializer(comment)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def export_xls(request):
-    response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="consulta.xls"'
+    queryset = Request.objects.raw(
+                '''
+                    select req.id, req.lat as 'latitude', req.lon as 'longitude', req.comment as 'descrição', 
+                    user.nome as 'nome do usuário', user.cpf, type_req.title as 'tipo', 
+                    status_code.desc as 'status', req.current_status_updated_at as 'data'
+                    from request_request as req 
+                    join user_usuario as user
+                    on req.id_user_id = user.id
+                    join request_requesttype as type_req
+                    on req.request_type_id = type_req.id
+                    join request_statuscode as status_code
+                    on req.current_status_id = status_code.id;
+                ''')
 
-    # Crie um objeto Workbook
-    workbook = xlwt.Workbook(encoding='utf-8')
-
-    # Crie uma planilha dentro do Workbook
-    worksheet = workbook.add_sheet('Consulta')
-
-    # Realize a consulta ao banco de dados e obtenha os resultados
-    # Substitua "Model" pelo nome do seu modelo e adicione as condições desejadas
-    data = Request.objects.all().values()
-    names_coluns = [field.name for field in Request._meta.get_fields()]
-
-    # Escreva o cabeçalho na planilha
-    header = names_coluns
-    for col_num, col_title in enumerate(header):
-        worksheet.write(0, col_num, col_title)
-
-    # Escreva os dados na planilha
-    for row_num, row_data in enumerate(data, start=1):
-        print(row_data)
-        print('column: ')
-        for col_num, cell_value in enumerate(row_data):
-            print(cell_value)
-            print('rown')
-            worksheet.write(row_num, col_num, cell_value)
-
-    # Salve o Workbook
-    workbook.save(response)
-
-    return response
-
-import openpyxl
-from django.http import FileResponse
-@api_view(['GET'])
-def exportar_para_excel(request):
-    # Consulta ao banco de dados
-    queryset = Request.objects.all()
-
-    # Criação do arquivo Excel
     workbook = openpyxl.Workbook()
     worksheet = workbook.active
 
-    # Preenche o cabeçalho com os nomes dos campos
-    campos = [field.name for field in Request._meta.fields]
+    campos = queryset.columns
     worksheet.append(campos)
 
-    # Preenche os dados dos objetos
     for obj in queryset:
         linha = [str(getattr(obj, campo)) for campo in campos]
         worksheet.append(linha)
 
-    # Salva o arquivo
     nome_arquivo = "exportacao.xls"
     workbook.save(nome_arquivo)
 
