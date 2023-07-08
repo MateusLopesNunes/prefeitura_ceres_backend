@@ -49,6 +49,17 @@ def base64_to_image(base64_string):
     #ext = format.split('/')[-1]
     return ContentFile(base64.b64decode(base64_string), name=uuid.uuid4().hex + ".jpg")
 
+def formatar_data(data_hora):
+    if data_hora:
+        data_hora_sem_milissegundos = str(data_hora).split(".")[0]
+        data_hora_obj = datetime.strptime(data_hora_sem_milissegundos, '%Y-%m-%d %H:%M:%S')
+        data_hora_formatada = data_hora_obj.strftime('%d/%m/%Y %H:%M:%S')
+        return data_hora_formatada
+    else:
+        return ''
+    
+
+# Endpoints
 class GetRequests(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Request.objects.order_by('-created')
@@ -306,18 +317,18 @@ def create_commentary(request):
 @api_view(['GET'])
 def export_xls(request):
     queryset = Request.objects.raw(
-                '''
-                    select req.id, req.lat as 'latitude', req.lon as 'longitude', req.comment as 'descrição', 
-                    user.nome as 'nome do usuário', user.cpf, type_req.title as 'tipo', 
-                    status_code.desc as 'status', req.current_status_updated_at as 'data'
-                    from request_request as req 
+                f"""
+                    select req.id, req.lat as 'Latitude', req.lon as 'Longitude', req.comment as 'Descrição do problema', 
+                    user.nome as 'Nome do usuário', user.cpf as 'CPF', type_req.title as 'Tipo da solicitação', 
+                    status_code.desc as 'Status', req.current_status_updated_at as 'Data e hora'
+                    from request_request as req
                     join user_usuario as user
                     on req.id_user_id = user.id
                     join request_requesttype as type_req
                     on req.request_type_id = type_req.id
                     join request_statuscode as status_code
                     on req.current_status_id = status_code.id;
-                ''')
+                """)
 
     workbook = openpyxl.Workbook()
     worksheet = workbook.active
@@ -326,9 +337,10 @@ def export_xls(request):
     worksheet.append(campos)
 
     for obj in queryset:
-        linha = [str(getattr(obj, campo)) for campo in campos]
+        linha = [str(getattr(obj, campo)) if campo != 'Data e hora' else formatar_data(getattr(obj, campo)) for campo in campos]
         worksheet.append(linha)
 
+    
     nome_arquivo = "exportacao.xls"
     workbook.save(nome_arquivo)
 
