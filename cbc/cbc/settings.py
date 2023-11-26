@@ -85,15 +85,16 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Ceres_bem_cuidada',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': 'db',
         'PORT': '3306',
     },
     'OPTIONS': {
         'charset': 'utf8mb4',  # This is the relevant line
     }
 }
+
 
 
 SIMPLE_JWT = {
