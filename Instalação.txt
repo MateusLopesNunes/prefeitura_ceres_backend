@@ -1,0 +1,10 @@
+py -3.10 -m venv venv ou python3.10 -m venv venv
+
+LINUX
+source venv/bin/activate
+
+WINDOWS POWERSHELL
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+venv\Scripts\Activate.ps1
+
+docker-compose up -d

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentação Técnica - Prefeitura Ceres Backend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f9f9f9; color: #222; }
+        h1, h2, h3 { color: #1a4d7a; }
+        code, pre { background: #eee; padding: 2px 6px; border-radius: 4px; }
+        .endpoint { background: #e3f2fd; padding: 8px; border-radius: 4px; margin-bottom: 6px; }
+        .model { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+        .field { margin-left: 16px; }
+        .section { margin-bottom: 32px; }
+        ul { margin-top: 0; }
+    </style>
+</head>
+<body>
+    <h1>Documentação Técnica — Prefeitura Ceres Backend</h1>
+
+    <div class="section">
+        <h2>Visão Geral</h2>
+        <p>
+            API RESTful desenvolvida em Django para gerenciamento de usuários e solicitações de serviços públicos. 
+            Suporta autenticação JWT, cadastro, gerenciamento de solicitações, comentários, status e tipos de requisições.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Principais Apps</h2>
+        <h3>user</h3>
+        <ul>
+            <li>Gerencia autenticação, cadastro e manipulação de usuários.</li>
+        </ul>
+        <h4>Modelos</h4>
+        <div class="model">
+            <b>UserType</b>
+            <div class="field"><b>desc</b>: CharField(100)</div>
+        </div>
+        <div class="model">
+            <b>Usuario</b>
+            <div class="field"><b>nome</b>: CharField(255)</div>
+            <div class="field"><b>dataNasc</b>: DateField</div>
+            <div class="field"><b>cpf</b>: CharField(14, unique)</div>
+            <div class="field"><b>endereco</b>: CharField(255)</div>
+            <div class="field"><b>telefone</b>: CharField(11)</div>
+            <div class="field"><b>email</b>: EmailField(255, unique)</div>
+            <div class="field"><b>password</b>: CharField(255)</div>
+            <div class="field"><b>userType</b>: ForeignKey(UserType)</div>
+        </div>
+        <h4>Principais Endpoints</h4>
+        <div class="endpoint">POST /user/create/ — Cria usuário</div>
+        <div class="endpoint">GET /user/users/ — Lista usuários</div>
+        <div class="endpoint">GET /user/login/&lt;cpf&gt; — Login por CPF</div>
+        <div class="endpoint">PUT /user/&lt;pk&gt;/update — Atualiza usuário</div>
+        <div class="endpoint">PUT /user/&lt;pk&gt;/change_password — Troca senha</div>
+        <div class="endpoint">DELETE /user/&lt;pk&gt;/delete — Remove usuário</div>
+        <div class="endpoint">POST /user/reset_password/ — Reset de senha</div>
+        <div class="endpoint">GET /user/activate/&lt;uidb64&gt;/&lt;token&gt;/ — Ativação de conta</div>
+    </div>
+
+    <div class="section">
+        <h3>request</h3>
+        <ul>
+            <li>Gerencia solicitações de serviços, tipos, status e comentários.</li>
+        </ul>
+        <h4>Modelos</h4>
+        <div class="model">
+            <b>RequestType</b>
+            <div class="field"><b>icon</b>: ImageField</div>
+            <div class="field"><b>banner</b>: ImageField</div>
+            <div class="field"><b>desc</b>: CharField(100)</div>
+            <div class="field"><b>title</b>: CharField(150)</div>
+        </div>
+        <div class="model">
+            <b>StatusCode</b>
+            <div class="field"><b>desc</b>: CharField(50)</div>
+        </div>
+        <div class="model">
+            <b>Request</b>
+            <div class="field"><b>id_user</b>: ForeignKey(Usuario)</div>
+            <div class="field"><b>request_type</b>: ForeignKey(RequestType)</div>
+            <div class="field"><b>importance</b>: IntegerField</div>
+            <div class="field"><b>img1, img2, img3</b>: ImageField</div>
+            <div class="field"><b>comment</b>: TextField</div>
+            <div class="field"><b>lat, lon</b>: CharField(50)</div>
+            <div class="field"><b>created</b>: DateTimeField</div>
+            <div class="field"><b>completed</b>: DateTimeField</div>
+            <div class="field"><b>is_canceled</b>: BooleanField</div>
+            <div class="field"><b>current_status</b>: ForeignKey(StatusCode)</div>
+            <div class="field"><b>current_status_updated_at</b>: DateTimeField</div>
+        </div>
+        <div class="model">
+            <b>Status</b>
+            <div class="field"><b>id_request</b>: ForeignKey(Request)</div>
+            <div class="field"><b>status_code</b>: ForeignKey(StatusCode)</div>
+            <div class="field"><b>dateTime</b>: DateTimeField</div>
+        </div>
+        <div class="model">
+            <b>Commentary</b>
+            <div class="field"><b>id_request</b>: ForeignKey(Request)</div>
+            <div class="field"><b>id_user</b>: ForeignKey(Usuario)</div>
+            <div class="field"><b>message</b>: TextField</div>
+            <div class="field"><b>created_at</b>: DateTimeField</div>
+        </div>
+        <h4>Principais Endpoints</h4>
+        <div class="endpoint">GET /request/reqs/ — Lista requisições</div>
+        <div class="endpoint">POST /request/create/ — Cria requisição</div>
+        <div class="endpoint">PUT /request/&lt;pk&gt;/update/ — Atualiza requisição</div>
+        <div class="endpoint">PUT /request/&lt;pk&gt;/cancel/ — Cancela requisição</div>
+        <div class="endpoint">DELETE /request/&lt;pk&gt;/delete/ — Remove requisição</div>
+        <div class="endpoint">GET /request/types/ — Lista tipos de requisição</div>
+        <div class="endpoint">POST /request/create/type/ — Cria tipo de requisição</div>
+        <div class="endpoint">GET /request/status/ — Lista status</div>
+        <div class="endpoint">POST /request/create/status/ — Cria status</div>
+        <div class="endpoint">GET /request/comment/ — Lista comentários</div>
+        <div class="endpoint">POST /request/create/comment/ — Cria comentário</div>
+    </div>
+
+    <div class="section">
+        <h2>Autenticação e Permissões</h2>
+        <ul>
+            <li>Autenticação JWT (<code>rest_framework_simplejwt</code>)</li>
+            <li>Endpoints: <code>/token/</code>, <code>/token/refresh/</code>, <code>/token/verify/</code></li>
+            <li>Muitas views exigem autenticação (<code>IsAuthenticated</code>)</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Fluxo Básico de Uso</h2>
+        <ol>
+            <li>Usuário se cadastra via <code>/user/create/</code></li>
+            <li>Recebe email para ativação</li>
+            <li>Faz login e obtém token JWT</li>
+            <li>Cria uma requisição via <code>/request/create/</code></li>
+            <li>Acompanha status e adiciona comentários</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>Configuração Rápida</h2>
+        <ul>
+            <li>Configure o banco de dados conforme <code>settings.py</code></li>
+            <li>Instale dependências: <code>pip install -r requirements.txt</code></li>
+            <li>Rode as migrações: <code>python manage.py migrate</code></li>
+            <li>Inicie o servidor: <code>python manage.py runserver</code></li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Observações</h2>
+        <ul>
+            <li>Upload de imagens suportado para solicitações e tipos</li>
+            <li>Filtros por status, tipo, usuário, etc.</li>
+            <li>Ativação de conta via token enviado por email</li>
+        </ul>
+    </div>
+</body>
+</html>
