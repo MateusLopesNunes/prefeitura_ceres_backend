@@ -1,0 +1,38 @@
+Sistema de Gestão de Problemas de Infraestrutura Urbana
+# Requisitos Funcionais
+
+RF1. O sistema deve permitir o cadastro de novos usuários (cidadãos), armazenando informações pessoais e credenciais de acesso.
+    - Rota: POST /user/create/
+RF2. O sistema deve autenticar usuários por meio de CPF e senha, utilizando tokens JWT para sessões seguras.
+    - Rota: POST /token/  |  GET /user/login/<cpf>
+RF3. O sistema deve enviar e-mails de ativação de conta e permitir a ativação via link.
+    - Rota: GET /user/activate/<uidb64>/<token>/
+RF4. O sistema deve permitir a recuperação de senha, enviando uma nova senha por e-mail ao usuário.
+    - Rota: POST /user/reset_password/
+RF5. O sistema deve possibilitar o cadastro de requisições de problemas de infraestrutura, incluindo seleção do tipo de problema, localização, comentário e upload de até três imagens.
+    - Rota: POST /request/create/
+RF6. O sistema deve permitir que o usuário acompanhe o status e o histórico de suas requisições, promovendo transparência no processo.
+    - Rota: GET /request/reqs/  |  GET /request/status/
+RF7. O sistema deve permitir o cancelamento de requisições pelo usuário enquanto estiverem em análise.
+    - Rota: PUT /request/<pk>/cancel/
+RF8. O sistema deve permitir que usuários adicionem comentários em suas requisições.
+    - Rota: POST /request/create/comment/
+RF9. O sistema deve permitir que administradores visualizem, filtrem e gerenciem todas as requisições cadastradas.
+    - Rota: GET /request/reqs/  |  GET /request/types/  |  GET /request/status/
+RF10. O sistema deve permitir que administradores alterem o status das requisições, registrando cada etapa do processo.
+    - Rota: POST /request/create/status/  |  PUT /request/<pk>/update/
+RF11. O sistema deve permitir que administradores adicionem comentários administrativos às requisições.
+    - Rota: POST /request/create/comment/
+RF12. O sistema deve permitir o cadastro, edição e exclusão de tipos de requisição e status de requisição.
+    - Rotas: POST /request/create/type/  |  POST /request/create/status/  |  DELETE /request/types/<pk>/delete/  |  DELETE /request/status/<pk>/delete/
+RF13. O sistema deve exportar dados das requisições em formato XLS para fins de análise e prestação de contas.
+    - Rota: GET /request/export/xls/
+RF14. O sistema deve permitir que administradores excluam requisições e usuários do sistema.
+    - Rota: DELETE /request/<pk>/delete/  |  DELETE /user/<pk>/delete/
+
+#Requisitos não Funcionais
+RNF1. O sistema deve permitir fácil manutenção e atualização, utilizando arquitetura modular e containerização (Docker).
+RNF2. O sistema deve garantir a segurança dos dados dos usuários, utilizando autenticação JWT e criptografia de senhas.
+RNF3. O sistema deve ser capaz de atender múltiplos usuários simultaneamente, suportando concorrência.
+RNF4. O sistema deve garantir disponibilidade mínima de 99% durante o horário comercial.
+RNF5. O sistema deve armazenar imagens e arquivos de forma eficiente, sem comprometer o desempenho.

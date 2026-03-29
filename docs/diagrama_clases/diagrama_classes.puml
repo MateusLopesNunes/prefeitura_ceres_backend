@@ -1,0 +1,118 @@
+@startuml
+
+title Diagrama de Classes - Sistema de Solicitações de Infraestrutura do Município de Ceres
+
+' ===== User Package =====
+package "user" {
+    class UserType {
+        +id: Integer <<PK>>
+        --
+        +desc: CharField(100)
+        --
+        +__str__()
+    }
+
+    class Usuario {
+        +id: Integer <<PK>>
+        --
+        +nome: CharField(255)
+        +dataNasc: DateField
+        +cpf: CharField(14) <<unique>>
+        +endereco: CharField(255)
+        +telefone: CharField(11)
+        +email: EmailField(255) <<unique>>
+        +password: CharField(255)
+        +userType: ForeignKey
+        --
+        +__str__()
+    }
+    note right of Usuario
+        Herda de AbstractUser
+        USERNAME_FIELD = 'cpf'
+        username = None
+    end note
+}
+
+' ===== Request Package =====
+package "request" {
+    class RequestType {
+        +id: Integer <<PK>>
+        --
+        +icon: ImageField
+        +banner: ImageField
+        +desc: CharField(100)
+        +title: CharField(150)
+        --
+        +__str__()
+    }
+
+    class StatusCode {
+        +id: Integer <<PK>>
+        --
+        +desc: CharField(50)
+        --
+        +__str__()
+    }
+
+    class Request {
+        +id: Integer <<PK>>
+        --
+        +id_user: ForeignKey
+        +request_type: ForeignKey
+        +importance: Integer (nullable)
+        +img1: ImageField
+        +img2: ImageField
+        +img3: ImageField
+        +comment: TextField
+        +lat: CharField(50)
+        +lon: CharField(50)
+        +created: DateTimeField
+        +completed: DateTimeField (nullable)
+        +is_canceled: Boolean
+        +current_status: ForeignKey
+        +current_status_updated_at: DateTimeField (nullable)
+        --
+        +__str__()
+    }
+    note right of Request
+        Ordenado por: -created
+        (mais recentes primeiro)
+    end note
+
+    class Status {
+        +id: Integer <<PK>>
+        --
+        +id_request: ForeignKey
+        +status_code: ForeignKey
+        +dateTime: DateTimeField
+    }
+    note right of Status
+        Ordenado por: -dateTime
+        Histórico de mudanças de status
+    end note
+
+    class Commentary {
+        +id: Integer <<PK>>
+        --
+        +id_request: ForeignKey
+        +id_user: ForeignKey
+        +message: TextField
+        +created_at: DateTimeField
+        --
+    }
+}
+
+' ===== Relacionamentos =====
+Usuario "1" --> "1" UserType : userType
+Usuario "1" --> "0..*" Request : id_user
+Usuario "1" --> "0..*" Commentary : id_user
+
+RequestType "1" --> "0..*" Request : request_type
+
+StatusCode "1" --> "0..*" Request : current_status
+StatusCode "1" --> "0..*" Status : status_code
+
+Request "1" --> "0..*" Status : id_request
+Request "1" --> "0..*" Commentary : id_request
+
+@enduml

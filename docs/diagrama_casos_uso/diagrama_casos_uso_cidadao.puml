@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+
+title Diagrama de Casos de Uso - Cidadão\nSistema de Gestão Participativa de Demandas de Infraestrutura do Município de Ceres
+
+actor "Cidadão" as Cidadao
+
+rectangle "Sistema de Gestão de Demandas de Infraestrutura" {
+    
+    usecase "Cadastrar-se no sistema" as UC01
+    usecase "Fazer login (JWT)" as UC02
+    usecase "Criar solicitação" as UC03
+    usecase "Visualizar minhas solicitações" as UC04
+    usecase "Visualizar detalhes da solicitação" as UC05
+    usecase "Visualizar histórico de status" as UC06
+    usecase "Adicionar comentário" as UC07
+}
+
+' ===== RELACIONAMENTOS =====
+Cidadao --> UC01
+Cidadao --> UC02
+Cidadao --> UC03
+Cidadao --> UC04
+Cidadao --> UC05
+Cidadao --> UC06
+Cidadao --> UC07
+
+@enduml

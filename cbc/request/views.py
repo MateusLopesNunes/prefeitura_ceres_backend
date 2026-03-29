@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import RequestSerializer, RequestTypeSerializer, RequestResposeSerializer, StatusSerializer,StatusCodeSerializer, CommentarySerializer
 from .models import Request, RequestType, Status, StatusCode, Usuario, Commentary
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status as status_code
+from rest_framework import status as http_status
 from django.core.files.base import ContentFile
 from datetime import datetime, timedelta
 from django.db.models import Q
@@ -238,14 +238,14 @@ def cancel_req(request, pk):
     filter = Request.objects.filter(id=pk)
 
     if len(filter) == 0:
-        return Response({'msg':'Esta solicitação não existe'})
+        return Response({'msg':'Esta solicitação não existe' }, status=http_status.HTTP_404_NOT_FOUND)
 
     request = filter[0]
     if request.current_status.pk == STATUS_EM_ANALISE:
         status_code_req = StatusCode.objects.filter(pk=STATUS_CANCELED)
 
         if len(status_code_req) == 0:
-            return Response({'msg':'Este código de status não existe'})
+            return Response({'msg':'Este código de status não existe'}, status=http_status.HTTP_404_NOT_FOUND)
 
         newStatus = Status(id_request=request, status_code=status_code_req[0])
         newStatus.save()
@@ -254,9 +254,9 @@ def cancel_req(request, pk):
         request.current_status = status_code_req[0]
         request.current_status_updated_at = datetime.now()
         request.save()
-        return Response({'msg': "Requisição cancelada com sucesso"}, status=status_code.HTTP_200_OK)
+        return Response({'msg': "Requisição cancelada com sucesso"}, status=http_status.HTTP_200_OK)
 
-    return Response({'msg': "A requisição não está com o status inicial, portanto não pode ser cancelada"}, status=status_code.HTTP_400_BAD_REQUEST)
+    return Response({'msg': "A requisição não está com o status inicial, portanto não pode ser cancelada"}, status=http_status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -265,19 +265,19 @@ def change_request(request, pk, status_code):
     status_codes_instance = StatusCode.objects.filter(id=status_code)
 
     if len(requests_instance) == 0:
-        return Response({'msg':'Solicitação não existe'})
+        return Response({'msg':'Solicitação não existe'}, status=http_status.HTTP_404_NOT_FOUND)
     
     if len(status_codes_instance) == 0:
-        return Response({'msg':'Código do status não existe'})
+        return Response({'msg':'Código do status não existe'}, status=http_status.HTTP_404_NOT_FOUND)
 
     request_instance = requests_instance[0]
     status_code_instance = status_codes_instance[0]
 
     if status_code_instance.pk == 5:
-        return Response({'msg':'Código do status inválido'})
+        return Response({'msg':'Código do status inválido'}, status=http_status.HTTP_400_BAD_REQUEST)
 
     if request_instance.current_status.pk == int(status_code):
-        return Response({'msg': 'Escolha um status diferente do atual'})
+        return Response({'msg': 'Escolha um status diferente do atual'}, status=http_status.HTTP_400_BAD_REQUEST)
 
     status = Status(
         id_request= request_instance,
@@ -288,7 +288,7 @@ def change_request(request, pk, status_code):
     request_instance.current_status = status_code_instance
     request_instance.current_status_updated_at = datetime.now()
     request_instance.save()
-    return Response({'msg': 'Status da solicitção atualizada com sucesso'})
+    return Response({'msg': 'Status da solicitção atualizada com sucesso'}, status=http_status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -298,10 +298,10 @@ def create_commentary(request):
     id_user = Usuario.objects.filter(id=data['id_user'])
 
     if len(id_request) == 0:
-        return Response({'msg':'Solicitação não existe'})
+        return Response({'msg':'Solicitação não existe'}, status=http_status.HTTP_404_NOT_FOUND)
     
     if len(id_user) == 0:
-        return Response({'msg':'Usuário não existe'})
+        return Response({'msg':'Usuário não existe'}, status=http_status.HTTP_404_NOT_FOUND)
 
     comment = Commentary(
         id_request= id_request[0],

@@ -179,7 +179,7 @@ def createUser(request):
             'uid':urlsafe_base64_encode(force_bytes(user.pk)),
             'token':account_activation_token.make_token(user),
         })
-        send_email(message, mail_subject, user.email)
+        # send_email(message, mail_subject, user.email)
 
         return HttpResponse('Confirme seu email para confirmar o registro')
 

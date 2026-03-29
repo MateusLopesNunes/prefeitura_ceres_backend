@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+
+title Diagrama de Casos de Uso - Administrador\nSistema de Gestão Participativa de Demandas de Infraestrutura do Município de Ceres
+
+actor "Administrador" as Admin
+
+rectangle "Sistema de Gestão de Demandas de Infraestrutura" {
+    
+    usecase "Fazer login (JWT)" as UC01
+    usecase "Listar todas as solicitações" as UC02
+    usecase "Visualizar detalhes da solicitação" as UC03
+    usecase "Alterar status da solicitação" as UC04
+    usecase "Listar todos os usuários" as UC05
+    usecase "Adicionar comentário administrativo" as UC06
+    usecase "Exportar relatório XLS" as UC07
+}
+
+' ===== RELACIONAMENTOS =====
+Admin --> UC01
+Admin --> UC02
+Admin --> UC03
+Admin --> UC04
+Admin --> UC05
+Admin --> UC06
+Admin --> UC07
+
+@enduml
